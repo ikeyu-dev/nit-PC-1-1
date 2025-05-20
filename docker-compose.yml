@@ -1,0 +1,26 @@
+version: "3"
+services:
+    api:
+        container_name: phisical-computing-api
+        build: .
+        depends_on:
+            - db
+        environment:
+            DATABASE_URL: "postgresql://phisical_computing:STRONG_DB_PASSWORD@db:5432/phisical_computing?"
+        ports:
+            - "5001:5001"
+        restart: unless-stopped
+        volumes:
+            - ./src:/code/src
+    db:
+        container_name: phisical-computing-db
+        image: postgres:16-alpine
+        environment:
+            POSTGRES_DB: phisical_computing
+            POSTGRES_USER: phisical_computing
+            POSTGRES_PASSWORD: STRONG_DB_PASSWORD
+        restart: unless-stopped
+        volumes:
+            - db_data:/var/lib/postgresql/data
+volumes:
+    db_data:
