@@ -1,2 +1,9 @@
-mediapipe==0.10.21
+fastapi==0.115.12
+mediapipe==0.10.18
 opencv_python==4.11.0.86
+pydantic==1.10.21
+python-dotenv==1.1.0
+selenium==4.32.0
+SQLAlchemy==2.0.41
+uvicorn==0.34.2
+psycopg2-binary==2.9.6
