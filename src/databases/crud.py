@@ -2,11 +2,11 @@ from datetime import datetime
 from sqlalchemy.orm import Session
 
 import src.databases.schema as themes_schema
-import src.databases.model as themes_model
+import src.databases.model as questions_model
 
 
 def create_question(db: Session, question: themes_schema.Themes):
-    new_question = themes_model.theme(
+    new_question = questions_model.Question(
         question=question.question,
         tag=question.tag,
         ja=question.ja,
@@ -19,7 +19,7 @@ def create_question(db: Session, question: themes_schema.Themes):
 
 
 def get_all_question(db: Session):
-    question = db.query(themes_model.theme).all()
+    question = db.query(questions_model.Question).all()
     if not question:
         return False
     return question
@@ -27,8 +27,8 @@ def get_all_question(db: Session):
 
 def delete_question(db: Session, question_id: int):
     question = (
-        db.query(themes_model.theme)
-        .filter(themes_model.theme.id == question_id)
+        db.query(questions_model.Question)
+        .filter(questions_model.Question.id == question_id)
         .first()
     )
     if not question:

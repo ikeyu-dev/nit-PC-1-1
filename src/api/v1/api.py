@@ -27,8 +27,9 @@ async def get_all_question(db: Session = Depends(db.db_session)):
     try:
         all_questions = crud.get_all_question(db)
         if not all_questions:
-            raise HTTPException(
-                status_code=200, detail="success but question not found"
+            return JSONResponse(
+                status_code=200,
+                content={"question": "not exist"},
             )
         return all_questions
 
