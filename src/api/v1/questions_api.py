@@ -53,7 +53,6 @@ async def create_question(
             raise HTTPException(status_code=500, detail="failed to create question")
 
     except Exception as e:
-        db.rollback()
         raise HTTPException(status_code=500, detail=f"unexpected error: {str(e)}")
     return JSONResponse(status_code=200, content={"created": "success"})
 

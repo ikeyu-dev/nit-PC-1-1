@@ -6,15 +6,19 @@ import src.databases.model as questions_model
 
 
 def create_question(db: Session, question: themes_schema.Question):
-    new_question = questions_model.Question(
-        question=question.question,
-        tag=question.tag,
-        ja=question.ja,
-        created_at=datetime.now(),
-    )
-    db.add(new_question)
-    db.commit()
-    db.refresh(new_question)
+    try:
+        new_question = questions_model.Question(
+            question=question.question,
+            tag=question.tag,
+            ja=question.ja,
+            created_at=datetime.now(),
+        )
+        db.add(new_question)
+        db.commit()
+        db.refresh(new_question)
+    except Exception as e:
+        db.rollback()
+        return False
     return question
 
 
