@@ -1,12 +1,14 @@
 from sqlalchemy import create_engine
 from sqlalchemy.orm import declarative_base
 from sqlalchemy.orm import sessionmaker, scoped_session
+from dotenv import load_dotenv
+import os
 
-DB_URL = (
-    "postgresql://phisical_computing:STRONG_DB_PASSWORD@db:5432/phisical_computing?"
-)
+load_dotenv()
+DATABASE_URL = os.getenv("DATABASE_URL")
 
-engine = create_engine(DB_URL)
+
+engine = create_engine(DATABASE_URL)
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
 Base = declarative_base()
