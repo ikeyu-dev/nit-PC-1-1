@@ -3,7 +3,7 @@ from sqlalchemy.orm import Session
 from fastapi import APIRouter, HTTPException, Depends
 from fastapi.responses import JSONResponse
 from src import db
-from ...databases import model, crud, schema
+from src.databases import model, crud, schema
 
 
 model.Base.metadata.create_all(bind=db.engine)
