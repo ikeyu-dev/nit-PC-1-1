@@ -6,7 +6,7 @@ services:
         depends_on:
             - db
         environment:
-            DATABASE_URL: "postgresql://phisical_computing:STRONG_DB_PASSWORD@db:5432/phisical_computing?"
+            DATABASE_URL: ${DATABASE_URL}
         ports:
             - "5001:5001"
         restart: unless-stopped
