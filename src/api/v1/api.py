@@ -41,7 +41,7 @@ async def get_all_question(db: Session = Depends(db.db_session)):
     "/create",
 )
 async def create_question(
-    question: schema.Themes,
+    question: schema.Question,
     db: Session = Depends(db.db_session),
 ):
     """

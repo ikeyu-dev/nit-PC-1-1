@@ -2,13 +2,13 @@ from pydantic import BaseModel, ConfigDict
 import datetime
 
 
-class Themes(BaseModel):
+class Question(BaseModel):
     question: str
     tag: str
     ja: str
 
 
-class ThemeResponse(Themes):  # レスポンス用モデル
+class ThemeResponse(Question):  # レスポンス用モデル
     id: int
     created_at: datetime.datetime  # DBから取得した値を含む
 

@@ -5,7 +5,7 @@ import src.databases.schema as themes_schema
 import src.databases.model as questions_model
 
 
-def create_question(db: Session, question: themes_schema.Themes):
+def create_question(db: Session, question: themes_schema.Question):
     new_question = questions_model.Question(
         question=question.question,
         tag=question.tag,
