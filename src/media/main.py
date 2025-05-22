@@ -1,15 +1,14 @@
 import cv2
 import mediapipe as mp
 from landmarks import LandmarksNumber
+from faces.smile import isSmile
+from drawing import draw_face_mesh
 
 
 def main():
-    # 描画
-    mp_drawing = mp.solutions.drawing_utils
     # 顔メッシュ
     mp_face_mesh = mp.solutions.face_mesh
 
-    # カメラ
     cap = cv2.VideoCapture(0)
 
     # 笑顔判定変数を初期化
@@ -35,108 +34,11 @@ def main():
 
             if results.multi_face_landmarks:
                 for face_landmarks in results.multi_face_landmarks:
-                    # 唇と瞼の座標から笑顔を判定
-
-                    # 開口部
-                    upper_lip_bottom = face_landmarks.landmark[
-                        LandmarksNumber.upper_lip_bottom
-                    ]  # 上唇の下部
-                    lower_lip_top = face_landmarks.landmark[
-                        LandmarksNumber.lower_lip_top
-                    ]  # 下唇の上部
-
-                    # 唇の中心点と端
-                    lip_center_point = face_landmarks.landmark[
-                        LandmarksNumber.lip_center_point
-                    ]  # 唇の中心点
-                    lip_corner_left = face_landmarks.landmark[
-                        LandmarksNumber.lip_corner_left
-                    ]  # 左唇の端
-                    lip_corner_right = face_landmarks.landmark[
-                        LandmarksNumber.lip_corner_right
-                    ]  # 右唇の端
-
-                    # 瞼
-                    left_eye_top = face_landmarks.landmark[
-                        LandmarksNumber.left_eye_top
-                    ]  # 左目の上部
-                    left_eye_bottom = face_landmarks.landmark[
-                        LandmarksNumber.left_eye_bottom
-                    ]  # 左目の下部
-                    right_eye_top = face_landmarks.landmark[
-                        LandmarksNumber.right_eye_top
-                    ]  # 右目の上部
-                    right_eye_bottom = face_landmarks.landmark[
-                        LandmarksNumber.right_eye_bottom
-                    ]  # 右目の下部
-
-                    # 距離を計算
-                    mouth_opening_degree = abs(
-                        upper_lip_bottom.y - lower_lip_top.y
-                    )  # 唇の開き度合い
-
-                    eyelid_opening_degree = abs(
-                        (
-                            abs(left_eye_top.y - left_eye_bottom.y)
-                            + abs(right_eye_top.y - right_eye_bottom.y)
-                        )
-                        / 2
-                    )  # 瞼の開き度合い(左右平均値)
-
-                    lip_coner_up = abs(
-                        (
-                            abs(lip_center_point.y - lip_corner_left.y)
-                            + abs(lip_center_point.y - lip_corner_right.y)
-                        )
-                        / 2
-                    )  # 口角の上がり度合い(左右平均値)
-
-                    smile = (
-                        True
-                        if mouth_opening_degree > 0.03
-                        and eyelid_opening_degree < 0.03
-                        and lip_coner_up > 0.03
-                        else (
-                            True
-                            if lip_coner_up > 0.04 and eyelid_opening_degree < 0.02
-                            else False
-                        )
-                    )  # 笑顔の判定
 
                     # TODO: 笑顔以外の表情判定についても実装する
+                    smile = isSmile(face_landmarks)
 
-                    # 顔のメッシュを描画
-                    mp_drawing.draw_landmarks(
-                        image=image,  # 描画する画像
-                        landmark_list=face_landmarks,  # ランドマーク
-                        connections=mp_face_mesh.FACEMESH_TESSELATION,  # 顔におけるメッシュ線
-                        landmark_drawing_spec=None,  # ランドマークの描画スタイル
-                        connection_drawing_spec=mp_drawing.DrawingSpec(
-                            color=(0, 255, 0), thickness=1, circle_radius=1
-                        ),  # 線の描画スタイル
-                    )
-
-                    # 顔の輪郭を描画
-                    mp_drawing.draw_landmarks(
-                        image=image,  # 描画する画像
-                        landmark_list=face_landmarks,  # ランドマーク
-                        connections=mp_face_mesh.FACEMESH_CONTOURS,  # 輪郭線
-                        landmark_drawing_spec=None,  # ランドマークの描画スタイル
-                        connection_drawing_spec=mp_drawing.DrawingSpec(
-                            color=(255, 0, 0), thickness=2, circle_radius=0.5
-                        ),  # 線の描画スタイル
-                    )
-
-                    # 虹彩の輪郭を描画
-                    mp_drawing.draw_landmarks(
-                        image=image,  # 描画する画像
-                        landmark_list=face_landmarks,  # ランドマーク
-                        connections=mp_face_mesh.FACEMESH_IRISES,  # 目の周りのメッシュ線
-                        landmark_drawing_spec=None,  # ランドマークの描画スタイル
-                        connection_drawing_spec=mp_drawing.DrawingSpec(
-                            color=(0, 0, 255), thickness=1, circle_radius=1
-                        ),  # 線の描画スタイル
-                    )
+                    draw_face_mesh(image, face_landmarks)
 
             #  表示
             cv2.putText(
