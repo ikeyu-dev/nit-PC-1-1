@@ -5,7 +5,7 @@ import datetime
 class Question(BaseModel):
     question: str
     tag: str
-    ja: str
+    detail: str
 
 
 class ThemeResponse(Question):  # レスポンス用モデル

@@ -10,7 +10,7 @@ def create_question(db: Session, question: themes_schema.Question):
         new_question = questions_model.Question(
             question=question.question,
             tag=question.tag,
-            ja=question.ja,
+            detail=question.detail,
             created_at=datetime.now(),
         )
         db.add(new_question)

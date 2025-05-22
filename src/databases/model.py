@@ -10,5 +10,5 @@ class Question(Base):
     id = Column(Integer, primary_key=True)
     question = Column(String, unique=True, index=True)
     tag = Column(String, unique=True, index=True)
-    ja = Column(String, unique=True, index=True)
+    detail = Column(String, unique=True, index=True)
     created_at = Column(DateTime, default=datetime.now())
