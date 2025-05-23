@@ -65,7 +65,7 @@ async def delete_question(
     db: Session = Depends(db.db_session),
 ):
     """
-    delete question from json file.
+    delete question from database.
     """
     try:
         deleted_question = crud.delete_question(db, question_id)
