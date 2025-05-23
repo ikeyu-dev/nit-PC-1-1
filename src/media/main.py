@@ -1,6 +1,5 @@
 import cv2
 import mediapipe as mp
-from landmarks import LandmarksNumber
 from faces.smile import isSmile
 from drawing import draw_face_mesh
 
