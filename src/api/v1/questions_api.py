@@ -9,7 +9,7 @@ from src.databases import model, crud, schema
 model.Base.metadata.create_all(bind=db.engine)
 
 router = APIRouter(
-    prefix="/qustion",
+    prefix="/question",
     tags=["v1"],
     responses={404: {"description": "Not found"}},
 )
@@ -22,7 +22,7 @@ load_dotenv()
 )
 async def get_all_question(db: Session = Depends(db.db_session)):
     """
-    get all question from json file.
+    DBから全ての問題を取得する
     """
     try:
         all_questions = crud.get_all_question(db)
@@ -45,7 +45,7 @@ async def create_question(
     db: Session = Depends(db.db_session),
 ):
     """
-    create question from json file.
+    DBに問題を登録する
     """
     try:
         new_question = crud.create_question(db, question)
@@ -65,7 +65,7 @@ async def delete_question(
     db: Session = Depends(db.db_session),
 ):
     """
-    delete question from database.
+    DBから問題を削除する
     """
     try:
         deleted_question = crud.delete_question(db, question_id)
