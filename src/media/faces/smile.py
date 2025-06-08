@@ -53,11 +53,12 @@ def isSmile(face_landmarks):
         )
     )  # 口角の上がり度合い(左右平均値)
 
-    smile = (
-        True
-        if mouth_opening_degree > 0.03
-        and eyelid_opening_degree < 0.03
-        and lip_coner_up > 0.03
-        else (True if lip_coner_up > 0.04 and eyelid_opening_degree < 0.02 else False)
-    )  # 笑顔の判定
+    # smile = (
+    #     True
+    #     if mouth_opening_degree > 0.03
+    #     and eyelid_opening_degree < 0.03
+    #     and lip_coner_up > 0.03
+    #     else (True if lip_coner_up > 0.04 and eyelid_opening_degree < 0.02 else False)
+    # )  # 笑顔の判定
+    smile = eyelid_opening_degree < 0.03 and lip_coner_up > 0.03
     return smile
