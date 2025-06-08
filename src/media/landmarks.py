@@ -10,7 +10,7 @@ class LandmarksNumber:
     right_eye_bottom: int = 374  # 右目の下部
 
 
-class ThemeNumber:
+class QuestionNumber:
     smile: int = 1
     sad: int = 2
     angry: int = 3

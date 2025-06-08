@@ -51,10 +51,8 @@ def main():
             )
             cv2.imshow("Mediapipe Face Mesh", image)
 
-            # TODO: 画像をfastAPIに送信する処理を追加
-
             # qキー押すと終了
-            if cv2.waitKey(5) & 0xFF == ord("q"):
+            if cv2.waitKey(1) & 0xFF == ord("q"):
                 break
 
     # カメラを解放
