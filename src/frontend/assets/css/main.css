@@ -1,0 +1,46 @@
+@import "tailwindcss";
+@plugin "daisyui";
+
+@font-face {
+    font-family: "Noto Sans JP";
+    font-style: normal;
+    font-weight: 150;
+    font-display: swap;
+    src: url(../fonts/Noto_Sans_JP/NotoSansJP-VariableFont_wght.ttf)
+        format("woff2");
+}
+
+.header {
+    background-color: rgba(255, 255, 255, 0.97);
+    z-index: 10;
+}
+
+.mobile_navbar {
+    border-top: 1px solid rgba(227, 227, 227, 0.514);
+    font-family: Noto Sans JP;
+}
+
+.texts span {
+    transition: 1s;
+    opacity: 0;
+    transform: translateY(20px);
+    display: block;
+    font-family: Noto Sans JP;
+    z-index: 0;
+    color: #2d2d2d;
+}
+
+.texts span:first-child {
+    animation: catch_anime 1s forwards 0.5s;
+}
+
+@keyframes catch_anime {
+    0% {
+        transform: translateY(20px);
+    }
+
+    100% {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}

@@ -1,0 +1,28 @@
+{
+    "name": "nuxt-app",
+    "private": true,
+    "type": "module",
+    "scripts": {
+        "build": "nuxt build",
+        "dev": "nuxt dev --host",
+        "generate": "nuxt generate",
+        "preview": "nuxt preview",
+        "postinstall": "nuxt prepare"
+    },
+    "dependencies": {
+        "@mediapipe/camera_utils": "^0.3.1675466862",
+        "@mediapipe/drawing_utils": "^0.3.1675466124",
+        "@mediapipe/face_mesh": "^0.4.1633559619",
+        "@tailwindcss/vite": "^4.1.7",
+        "@vueuse/core": "^13.3.0",
+        "nuxt": "^3.17.4",
+        "tailwindcss": "^4.1.7",
+        "vue": "^3.5.14",
+        "vue-router": "^4.5.1",
+        "vue-web-cam": "^1.9.0"
+    },
+    "devDependencies": {
+        "@vitejs/plugin-basic-ssl": "^2.0.0",
+        "daisyui": "^5.0.43"
+    }
+}
