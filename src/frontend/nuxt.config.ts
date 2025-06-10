@@ -7,18 +7,6 @@ export default defineNuxtConfig({
     devtools: { enabled: true },
     vite: {
         plugins: [tailwindcss()],
-        server: {
-            proxy: {
-                "/api": {
-                    // バックエンド指定
-                    target: process.env.BASE_API,
-                    // オリジンを偽装
-                    changeOrigin: true,
-                    // パスの書き換え
-                    rewrite: (path) => path.replace(/^\/api/, ""),
-                },
-            },
-        },
     },
     css: ["~/assets/css/main.css"],
     devServer: {
