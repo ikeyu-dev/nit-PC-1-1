@@ -34,15 +34,16 @@ export const draw = (
     ctx.clearRect(0, 0, width, height); // canvasをクリア
 
     // 背景にビデオフレームを描画
-    if (bgImage) {
-        ctx.drawImage(results.image, 0, 0, width, height); // 引数は、画像、x座標、y座標、幅、高さ
-    }
+    // if (bgImage) {
+    //     ctx.drawImage(results.image, 0, 0, width, height); // 画像、x座標、y座標、幅、高さ
+    // }
+    bgImage = false; // 一旦falseにしておく
 
     if (results.multiFaceLandmarks) {
         const lineWidth = 1; // ラインの太さ
-        const tesselation = { color: "#C0C0C070", lineWidth }; // 顔の表面(埋め尽くし)のスタイル
-        const right_eye = { color: "#FF3030", lineWidth }; // 右の目・眉・瞳のスタイル
-        const left_eye = { color: "#30FF30", lineWidth }; // 左の目・眉・瞳のスタイル
+        const tesselation = { color: "#FFFFFF", lineWidth }; // 顔の表面(埋め尽くし)のスタイル
+        const right_eye = { color: "#FF0000", lineWidth: 2 }; // 右の目・眉・瞳のスタイルを強調
+        const left_eye = { color: "#FF0000", lineWidth: 2 }; // 左の目・眉・瞳のスタイルを強調
         const face_oval = { color: "#E0E0E0", lineWidth }; // 顔の輪郭のスタイル
 
         for (const landmarks of results.multiFaceLandmarks) {
@@ -62,17 +63,7 @@ export const draw = (
             drawConnectors(ctx, landmarks, FACEMESH_LIPS, face_oval);
 
             // TODO: 強調表示の実装
-            // if (emphasis) {
-            //     const emphasisLandmark = landmarks[
-            //         emphasis
-            //     ] as NormalizedLandmark;
-            //     const x = emphasisLandmark.x * width; // x座標
-            //     const y = emphasisLandmark.y * height; // y座標
-            //     ctx.beginPath();
-            //     ctx.arc(x, y, 5, 0, 2 * Math.PI); // 円を描く
-            //     ctx.fillStyle = "red"; // 強調表示の色
-            //     ctx.fill(); // 円を塗りつぶす
-            // }
+
             for (let i = 0; i < emphasis.length; i++) {
                 const emphasisLandmark = landmarks[
                     emphasis[i]
