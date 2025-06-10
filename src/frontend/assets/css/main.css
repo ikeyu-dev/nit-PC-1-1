@@ -13,13 +13,13 @@
 .header {
     background-color: rgba(255, 255, 255, 0.97);
     z-index: 10;
+    height: 160px;
 }
 
 .mobile_navbar {
     border-top: 1px solid rgba(227, 227, 227, 0.514);
-    font-family: Noto Sans JP;
 }
-
+/*
 .texts span {
     transition: 1s;
     opacity: 0;
@@ -43,4 +43,4 @@
         opacity: 1;
         transform: translateY(0);
     }
-}
+} */
