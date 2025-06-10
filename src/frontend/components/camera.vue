@@ -5,7 +5,6 @@ import { Camera } from "@mediapipe/camera_utils";
 import { FaceMesh } from "@mediapipe/face_mesh";
 import type { Results } from "@mediapipe/face_mesh";
 import { draw } from "~/composables/draw";
-import { getAllQuestion } from "~/composables/question";
 
 const mobile_nav_show = ref(false);
 const pc_nav_show = ref(true);
@@ -125,13 +124,17 @@ onUnmounted(() => {
         playsinline
         muted
     ></video>
-
-    <canvas
-        ref="canvasRef"
-        :class="['canvas', mobile_nav_show ? 'mobile' : 'pc']"
-        :width="CANVAS_WIDTH"
-        :height="CANVAS_HEIGHT"
-    ></canvas>
+    <div class="canvas-wrapper flex justify-center items-center">
+        <canvas
+            ref="canvasRef"
+            :class="[
+                'canvas shadow-lg rounded-lg border border-gray-300',
+                mobile_nav_show ? 'mobile mx-auto' : 'pc',
+            ]"
+            :width="CANVAS_WIDTH"
+            :height="CANVAS_HEIGHT"
+        ></canvas>
+    </div>
 </template>
 
 <style scoped>
@@ -142,14 +145,15 @@ onUnmounted(() => {
 }
 
 .canvas.mobile {
+    position: relative;
     width: 100%;
-    height: auto;
+    object-fit: cover;
 }
 
 .canvas.pc {
-    left: 40px;
-    top: 20%;
-    max-width: calc(100svw - 200px);
-    max-height: calc(100svh - 200px);
+    top: calc(160px);
+    left: 30px;
+    width: calc(50% - 30px);
+    height: calc(100svh - 200px);
 }
 </style>
