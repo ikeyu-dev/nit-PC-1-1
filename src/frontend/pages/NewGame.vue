@@ -38,12 +38,6 @@ definePageMeta({
                                 <span class="label-text">ニックネーム</span>
                             </label>
                             <input
-                                v-model="nickname"
-                                :class="{
-                                    input: true,
-                                    'input-error':
-                                        nickname_val === 'form_val_error',
-                                }"
                                 type="text"
                                 name="nickname"
                                 id="nickname"
@@ -51,14 +45,9 @@ definePageMeta({
                                 placeholder="ニックネームを入力"
                                 autocomplete="nickname"
                             />
-                            <label class="label">
-                                <span class="label-text-alt text-error text-xs">
-                                    {{ nickname_error_msg }}
-                                </span>
-                            </label>
                         </div>
                         <button
-                            @click="startGame($event)"
+                            @click=""
                             type="submit"
                             class="btn btn-primary w-full"
                         >
