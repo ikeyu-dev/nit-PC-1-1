@@ -39,5 +39,25 @@ async def root():
     return JSONResponse(content={"status": "ok", "hello": "world"})
 
 
+@app.get(
+    "/health",
+    tags=["v1"],
+    responses={
+        200: {
+            "description": "Health check",
+            "content": {"application/json": {"example": {"status": "ok"}}},
+        },
+    },
+)
+async def health_check():
+    """
+    This is a health check endpoint.
+    """
+    try:
+        return JSONResponse(content={"status": "pass"})
+    except Exception as e:
+        return JSONResponse(status_code=500, content={"message": str(e)})
+
+
 if __name__ == "__main__":
     uvicorn.run(app=app)
