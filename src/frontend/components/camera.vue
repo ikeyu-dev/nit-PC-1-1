@@ -4,6 +4,7 @@ import { get, useUserMedia } from "@vueuse/core";
 import { Camera } from "@mediapipe/camera_utils";
 import { FaceMesh } from "@mediapipe/face_mesh";
 import type { Results } from "@mediapipe/face_mesh";
+import { Landmarks } from "~/composables/landmarks";
 import { draw } from "~/composables/draw";
 
 const mobile_nav_show = ref(false);
@@ -69,7 +70,18 @@ const initialize = () => {
     faceMesh.onResults((results: Results) => {
         // コンポーネントがマウントされている場合のみ描画
         if (isComponentMounted && ctx) {
-            draw(ctx, results, true, [13, 14, 61, 291]);
+            const landmarks = new Landmarks();
+            draw(ctx, results, true, [
+                landmarks.upper_lip_bottom,
+                landmarks.lower_lip_top,
+                landmarks.lip_center_point,
+                landmarks.lip_corner_left,
+                landmarks.lip_corner_right,
+                landmarks.left_eye_top,
+                landmarks.left_eye_bottom,
+                landmarks.right_eye_top,
+                landmarks.right_eye_bottom,
+            ]);
         }
     });
 
@@ -148,6 +160,7 @@ onUnmounted(() => {
     position: relative;
     width: 100%;
     object-fit: cover;
+    height: calc(100svh - 233px);
 }
 
 .canvas.pc {

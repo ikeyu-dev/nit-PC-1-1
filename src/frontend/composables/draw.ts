@@ -34,47 +34,45 @@ export const draw = (
     ctx.clearRect(0, 0, width, height); // canvasをクリア
 
     // 背景にビデオフレームを描画
-    // if (bgImage) {
-    //     ctx.drawImage(results.image, 0, 0, width, height); // 画像、x座標、y座標、幅、高さ
-    // }
-    bgImage = false; // 一旦falseにしておく
+    if (bgImage) {
+        // ctx.drawImage(results.image, 0, 0, width, height); // 画像、x座標、y座標、幅、高さ
+    }
 
-    if (results.multiFaceLandmarks) {
-        const lineWidth = 1; // ラインの太さ
-        const tesselation = { color: "#FFFFFF", lineWidth }; // 顔の表面(埋め尽くし)のスタイル
-        const right_eye = { color: "#FF0000", lineWidth: 2 }; // 右の目・眉・瞳のスタイルを強調
-        const left_eye = { color: "#FF0000", lineWidth: 2 }; // 左の目・眉・瞳のスタイルを強調
-        const face_oval = { color: "#E0E0E0", lineWidth }; // 顔の輪郭のスタイル
+    const tesselation = { color: "#f3f3f3", lineWidth: 0.2 }; // 顔の表面(埋め尽くし)のスタイル
+    const right_eye = { color: "#FF0000", lineWidth: 2 }; // 右の目・眉・瞳のスタイルを強調
+    const left_eye = { color: "#3eb370", lineWidth: 2 }; // 左の目・眉・瞳のスタイルを強調
+    const face_oval = { color: "#E0E0E0", lineWidth: 1 }; // 顔の輪郭のスタイル
 
-        for (const landmarks of results.multiFaceLandmarks) {
-            // 顔の表面（埋め尽くし）
-            drawConnectors(ctx, landmarks, FACEMESH_TESSELATION, tesselation);
-            // 右の目・眉・瞳
-            drawConnectors(ctx, landmarks, FACEMESH_RIGHT_EYE, right_eye);
-            drawConnectors(ctx, landmarks, FACEMESH_RIGHT_EYEBROW, right_eye);
-            drawConnectors(ctx, landmarks, FACEMESH_RIGHT_IRIS, right_eye);
-            // 左の目・眉・瞳
-            drawConnectors(ctx, landmarks, FACEMESH_LEFT_EYE, left_eye);
-            drawConnectors(ctx, landmarks, FACEMESH_LEFT_EYEBROW, left_eye);
-            drawConnectors(ctx, landmarks, FACEMESH_LEFT_IRIS, left_eye);
-            // 顔の輪郭
-            drawConnectors(ctx, landmarks, FACEMESH_FACE_OVAL, face_oval);
-            // 唇
-            drawConnectors(ctx, landmarks, FACEMESH_LIPS, face_oval);
+    for (const landmarks of results.multiFaceLandmarks) {
+        // 顔の表面（埋め尽くし）
+        drawConnectors(ctx, landmarks, FACEMESH_TESSELATION, tesselation);
+        // 右の目・眉・瞳
+        drawConnectors(ctx, landmarks, FACEMESH_RIGHT_EYE, right_eye);
+        drawConnectors(ctx, landmarks, FACEMESH_RIGHT_EYEBROW, right_eye);
+        drawConnectors(ctx, landmarks, FACEMESH_RIGHT_IRIS, right_eye);
+        // 左の目・眉・瞳
+        drawConnectors(ctx, landmarks, FACEMESH_LEFT_EYE, left_eye);
+        drawConnectors(ctx, landmarks, FACEMESH_LEFT_EYEBROW, left_eye);
+        drawConnectors(ctx, landmarks, FACEMESH_LEFT_IRIS, left_eye);
+        // 顔の輪郭
+        drawConnectors(ctx, landmarks, FACEMESH_FACE_OVAL, face_oval);
+        // 唇
+        drawConnectors(ctx, landmarks, FACEMESH_LIPS, face_oval);
 
-            // TODO: 強調表示の実装
+        for (let i = 0; i < emphasis.length; i++) {
+            const emphasisLandmark = landmarks[
+                emphasis[i]
+            ] as NormalizedLandmark;
+            const x = emphasisLandmark.x * width; // x座標
+            const y = emphasisLandmark.y * height; // y座標
+            ctx.beginPath();
+            ctx.arc(x, y, 5, 0, 2 * Math.PI); // 円を描く
+            ctx.fillStyle = "red"; // 強調表示の色
+            ctx.fill(); // 円を塗りつぶす
 
-            for (let i = 0; i < emphasis.length; i++) {
-                const emphasisLandmark = landmarks[
-                    emphasis[i]
-                ] as NormalizedLandmark;
-                const x = emphasisLandmark.x * width; // x座標
-                const y = emphasisLandmark.y * height; // y座標
-                ctx.beginPath();
-                ctx.arc(x, y, 5, 0, 2 * Math.PI); // 円を描く
-                ctx.fillStyle = "red"; // 強調表示の色
-                ctx.fill(); // 円を塗りつぶす
-            }
+            ctx.font = "12px Arial";
+            ctx.fillStyle = "white"; // 番号の色
+            ctx.fillText(emphasis[i].toString(), x, y); // landmarkの番号を表示
         }
     }
     ctx.restore();

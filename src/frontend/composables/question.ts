@@ -11,8 +11,13 @@ export async function manageQuestion(type: string) {
             : type === "create"
             ? CREATE_QUESTION
             : DELETE_QUESTION;
-
-    const { data } = await useFetch<Questions>(`/api/question?uri=${uri}`);
-
-    return data.value;
+    try {
+        const { data } = await useFetch<Questions>(`/api/question?uri=${uri}`);
+        return data.value;
+    } catch (error) {
+        throw createError({
+            statusCode: 500,
+            statusMessage: `問題の取得に失敗 : ${error}`,
+        });
+    }
 }

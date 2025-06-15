@@ -1,18 +1,42 @@
 <script setup lang="ts">
 import { manageQuestion } from "~/composables/question";
+import { judge } from "~/composables/judge";
 import type { Question } from "~/composables/questionInterface";
+import correctSound from "~/assets/music/correct.mp3";
+import resultSound from "~/assets/music/result.mp3";
+import { now } from "@vueuse/core";
 
 const allQuestions = ref<Question[]>([]);
 const currentQuestion = ref<Question | null>(null);
 const score = ref<number | null>(20);
 
-const question = await manageQuestion("get");
-console.log(question);
-if (question) {
-    allQuestions.value = question;
-    currentQuestion.value =
-        question[Math.floor(Math.random() * question.length)] || null;
+try {
+    const question = await manageQuestion("get");
+    if (question) {
+        allQuestions.value = question;
+        currentQuestion.value =
+            question[Math.floor(Math.random() * question.length)] || null;
+    }
+} catch (error) {
+    alert(`エラー : ${error}`);
 }
+
+const usePlaySound = () => {
+    const correct = () => {
+        const audio = new Audio(correctSound);
+        audio.volume = 1;
+        audio.play();
+        score.value = (score.value || 0) + 10; // スコアを更新
+    };
+    const result = () => {
+        const audio = new Audio(resultSound);
+        audio.volume = 1;
+        audio.play();
+    };
+    return { correct, result };
+};
+
+const jedgement = () => {};
 
 const mobile_nav_show = ref(false);
 const pc_nav_show = ref(true);
@@ -29,6 +53,7 @@ onMounted(() => {
 
 onUnmounted(() => {
     window.removeEventListener("resize", updateVisibility);
+    updateVisibility();
 });
 </script>
 
@@ -42,7 +67,11 @@ onUnmounted(() => {
                 <div
                     class="card w-full max-w-lg bg-base-100 shadow-xl rounded-lg border border-gray-200 m-5"
                 >
-                    <div class="card-body text-center p-6">
+                    <div
+                        class="button card-body text-center p-6"
+                        @click="usePlaySound().correct()"
+                    >
+                        <!-- <div class="card-body text-center p-6"> -->
                         <h2
                             class="card-title text-xl font-bold text-primary mb-4"
                         >
@@ -93,7 +122,7 @@ onUnmounted(() => {
                     class="stats shadow bg-primary text-primary-content mb-4 w-full"
                 >
                     <div class="stat">
-                        <div class="stat-value">
+                        <div class="stat-value text-xl">
                             {{
                                 currentQuestion?.question ||
                                 "問題を取得中です..."
@@ -106,7 +135,7 @@ onUnmounted(() => {
                     class="stats shadow bg-secondary text-secondary-content w-full"
                 >
                     <div class="stat">
-                        <div class="stat-value">
+                        <div class="stat-value text-xl">
                             {{ score || "スコアを取得中です..." }}
                         </div>
                     </div>

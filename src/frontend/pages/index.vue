@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import FaceMeshCanvas from "~/components/Camera.vue";
-import PcShow from "~/components/Question.vue";
+import FaceMeshCanvas from "~/components/camera.vue";
+import PcShow from "~/components/question.vue";
 </script>
 
 <template>

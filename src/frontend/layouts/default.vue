@@ -1,11 +1,34 @@
+<script setup lang="ts">
+import { apiHealthCheck } from "~/composables/apiHealthCheck";
+
+const mobile_nav_show = ref(false);
+const pc_nav_show = ref(true);
+
+const updateVisibility = () => {
+    mobile_nav_show.value = window.innerWidth < 768;
+    pc_nav_show.value = window.innerWidth >= 768;
+};
+
+onMounted(() => {
+    window.addEventListener("resize", updateVisibility);
+    updateVisibility();
+    setInterval(() => {
+        apiHealthCheck();
+    }, 60000);
+});
+</script>
+
 <template>
-    <header class="header text-gray-600 body-font sticky top-0">
+    <header
+        v-if="pc_nav_show"
+        class="header text-gray-600 body-font sticky top-0"
+    >
         <div
             class="contaier mx-auto flex flex-wrap p-0 flex-col md:flex-row items-center"
         >
             <div class="flex">
                 <img
-                    class="h-40 w-40"
+                    class="w-40 h-40"
                     src="~/assets/img/logo.svg"
                     alt="logo"
                     id="logo"
