@@ -44,14 +44,11 @@ onUnmounted(() => {
                 v-if="pc_nav_show"
                 class="md:ml-auto flex flex-wrap items-center text-base justify-center"
             >
-                <nuxt-link
-                    to="/"
-                    class="p-4 m-4 hover:text-gray-900 hover:bg-slate-100"
-                >
+                <section class="p-4 m-4">
                     <ClientOnly>
                         {{ nowDate.toLocaleString() }}
                     </ClientOnly>
-                </nuxt-link>
+                </section>
             </nav>
         </div>
     </header>
