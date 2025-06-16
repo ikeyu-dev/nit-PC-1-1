@@ -52,7 +52,6 @@ onMounted(() => {
 
 onUnmounted(() => {
     window.removeEventListener("resize", updateVisibility);
-    updateVisibility();
 });
 </script>
 
