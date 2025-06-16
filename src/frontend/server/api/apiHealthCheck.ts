@@ -7,7 +7,9 @@ export default defineEventHandler(async () => {
             status: string;
             message: string;
         };
-        console.log(new Date().toLocaleString(), data.status);
+        console.log(
+            `[${new Date().toLocaleString()}] backend-api: ${data.status}`
+        );
     } catch {
         throw createError({
             statusCode: 500,

@@ -6,7 +6,11 @@ export default defineEventHandler(async (event) => {
     const BASE_API = useRuntimeConfig().public.BASE_API;
     try {
         const data = await $fetch<Questions>(`${BASE_API}${uri}`);
-        console.log(new Date().toLocaleString(), data);
+        console.log(
+            `[${new Date().toLocaleString()}] questions: ${JSON.stringify(
+                data
+            )}`
+        );
         return data;
     } catch (error) {
         throw createError({
