@@ -4,7 +4,6 @@ import { judge } from "~/composables/judge";
 import type { Question } from "~/composables/questionInterface";
 import correctSound from "~/assets/music/correct.mp3";
 import resultSound from "~/assets/music/result.mp3";
-import { now } from "@vueuse/core";
 
 const allQuestions = ref<Question[]>([]);
 const currentQuestion = ref<Question | null>(null);
@@ -82,10 +81,12 @@ onUnmounted(() => {
                         >
                             <div class="stat">
                                 <div class="stat-value">
-                                    {{
-                                        currentQuestion?.question ||
-                                        "問題を取得中です..."
-                                    }}
+                                    <ClientOnly>
+                                        {{
+                                            currentQuestion?.question ||
+                                            "問題を取得中です..."
+                                        }}
+                                    </ClientOnly>
                                 </div>
                             </div>
                         </div>
@@ -99,7 +100,9 @@ onUnmounted(() => {
                         >
                             <div class="stat">
                                 <div class="stat-value">
-                                    {{ score || "スコアを取得中です..." }}
+                                    <ClientOnly>
+                                        {{ score || "スコアを取得中です..." }}
+                                    </ClientOnly>
                                 </div>
                             </div>
                         </div>

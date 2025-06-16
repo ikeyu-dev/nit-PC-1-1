@@ -9,12 +9,18 @@ const updateVisibility = () => {
     pc_nav_show.value = window.innerWidth >= 768;
 };
 
+const nowDate = ref(new Date());
+
 onMounted(() => {
     window.addEventListener("resize", updateVisibility);
     updateVisibility();
     setInterval(() => {
         apiHealthCheck();
-    }, 60000);
+        nowDate.value = new Date();
+    }, 800);
+});
+onUnmounted(() => {
+    window.removeEventListener("resize", updateVisibility);
 });
 </script>
 
@@ -34,6 +40,19 @@ onMounted(() => {
                     id="logo"
                 />
             </div>
+            <nav
+                v-if="pc_nav_show"
+                class="md:ml-auto flex flex-wrap items-center text-base justify-center"
+            >
+                <nuxt-link
+                    to="/"
+                    class="p-4 m-4 hover:text-gray-900 hover:bg-slate-100"
+                >
+                    <ClientOnly>
+                        {{ nowDate.toLocaleString() }}
+                    </ClientOnly>
+                </nuxt-link>
+            </nav>
         </div>
     </header>
     <slot />
