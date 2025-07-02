@@ -8,6 +8,7 @@ import resultSound from "~/assets/music/result.mp3";
 const allQuestions = ref<Question[]>([]);
 const currentQuestion = ref<Question | null>(null);
 const score = ref<number | null>(20);
+const maxScore: number = 320;
 
 try {
     const question = await manageQuestion("get");
@@ -22,10 +23,14 @@ try {
 
 const usePlaySound = () => {
     const correct = () => {
-        const audio = new Audio(correctSound);
-        audio.volume = 1;
-        audio.play();
-        score.value = (score.value || 0) + 10; // スコアを更新
+        if (score.value != null && score.value < maxScore) {
+            const audio = new Audio(correctSound);
+            audio.volume = 1;
+            audio.play();
+            score.value = (score.value || 0) + 10; // スコアが最大値を超えないように制限
+        } else {
+            usePlaySound().result();
+        }
     };
     const result = () => {
         const audio = new Audio(resultSound);
@@ -105,7 +110,10 @@ onUnmounted(() => {
                                 </div>
                             </div>
                         </div>
-                        <p class="text-sm text-gray-500">
+                        <p
+                            class="text-sm text-gray-500"
+                            style="font-family: Noto Sans JP"
+                        >
                             お題をクリアすると、自動的に次の問題へ進みます。
                         </p>
                     </div>

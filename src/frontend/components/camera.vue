@@ -4,8 +4,16 @@ import { useUserMedia } from "@vueuse/core";
 import { Camera } from "@mediapipe/camera_utils";
 import { FaceMesh } from "@mediapipe/face_mesh";
 import type { Results } from "@mediapipe/face_mesh";
+import type {
+    WithFaceExpressions,
+    FaceDetection,
+    FaceExpressions,
+} from "face-api.js";
+import * as faceapi from "face-api.js";
 import { Landmarks } from "~/composables/landmarks";
 import { draw } from "~/composables/draw";
+
+const faceAPI_uri = "/models";
 
 const mobile_nav_show = ref(false);
 const pc_nav_show = ref(true);
@@ -47,13 +55,13 @@ watch(stream, (newStream) => {
     }
 });
 
-// mediaPipe初期化
+// 初期化
 const initialize = () => {
     if (!isComponentMounted || !videoRef.value || !canvasRef.value) return;
 
     const videoElement = videoRef.value;
     const canvasElement = canvasRef.value;
-    const ctx = canvasElement.getContext("2d")!;
+    const ctx = canvasElement.getContext("2d", { willReadFrequently: true });
 
     faceMesh = new FaceMesh({
         locateFile: (file) =>
@@ -66,22 +74,48 @@ const initialize = () => {
         minTrackingConfidence: 0.5, // トラッキングの信頼度の閾値
     });
 
+    // モデルをロード
+    Promise.all([
+        faceapi.nets.ssdMobilenetv1.loadFromUri(faceAPI_uri),
+        faceapi.nets.faceLandmark68Net.loadFromUri(faceAPI_uri),
+        faceapi.nets.faceExpressionNet.loadFromUri(faceAPI_uri),
+    ]).then(() => {
+        console.log("✅ face-api models loaded.");
+    });
+
     // 検出結果のコールバック関数
-    faceMesh.onResults((results: Results) => {
+    faceMesh.onResults(async (results: Results) => {
         // コンポーネントがマウントされている場合のみ描画
         if (isComponentMounted && ctx) {
             const landmarks = new Landmarks();
-            draw(ctx, results, true, [
-                landmarks.upper_lip_bottom,
-                landmarks.lower_lip_top,
-                landmarks.lip_center_point,
-                landmarks.lip_corner_left,
-                landmarks.lip_corner_right,
-                landmarks.left_eye_top,
-                landmarks.left_eye_bottom,
-                landmarks.right_eye_top,
-                landmarks.right_eye_bottom,
-            ]);
+            const detections = await faceapi
+                .detectAllFaces(videoRef.value!)
+                .withFaceLandmarks()
+                .withFaceExpressions();
+
+            const faceapi_detection = !detections
+                ? []
+                : detections.map((detection) => ({
+                      expressions: detection.expressions, // 表情データ
+                      box: detection.detection.box, // 顔の位置情報
+                  }));
+            draw(
+                ctx,
+                results,
+                true,
+                [
+                    landmarks.upper_lip_bottom,
+                    landmarks.lower_lip_top,
+                    landmarks.lip_center_point,
+                    landmarks.lip_corner_left,
+                    landmarks.lip_corner_right,
+                    landmarks.left_eye_top,
+                    landmarks.left_eye_bottom,
+                    landmarks.right_eye_top,
+                    landmarks.right_eye_bottom,
+                ],
+                JSON.stringify(faceapi_detection)
+            );
         }
     });
 
@@ -97,7 +131,6 @@ const initialize = () => {
         width: CANVAS_WIDTH,
         height: CANVAS_HEIGHT,
     });
-
     camera.start();
     console.log("✅ MediaPipe Initialized.");
 };
