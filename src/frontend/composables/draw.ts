@@ -20,12 +20,14 @@ import type { NormalizedLandmark, Results } from "@mediapipe/face_mesh";
  * @param results 検出結果
  * @param bgImage capture imageを描画するか
  * @param emphasis 強調するlandmarkのindex
+ * @param detections 検出結果の文字列
  */
 export const draw = (
     ctx: CanvasRenderingContext2D,
     results: Results,
     bgImage: boolean, // capture imageを描画するか
-    emphasis: number[]
+    emphasis: number[],
+    detections: string
 ) => {
     const width = ctx.canvas.width; // canvasの幅
     const height = ctx.canvas.height; // canvasの高さ
@@ -74,6 +76,48 @@ export const draw = (
             ctx.fillStyle = "white"; // 番号の色
             ctx.fillText(emphasis[i].toString(), x, y); // landmarkの番号を表示
         }
+        const detectionData = JSON.parse(detections);
+        for (const detection of detectionData) {
+            const box = detection.box;
+            const expressions = detection.expressions;
+
+            // BOXを描画
+            ctx.beginPath();
+            ctx.rect(box._x, box._y, box._width, box._height);
+            ctx.lineWidth = 2;
+            ctx.strokeStyle = "blue";
+            ctx.stroke();
+
+            // BOXにラベルを描画
+            let yOffset = box._y - 10;
+            ctx.font = "15px Arial";
+            ctx.fillStyle = "white";
+            for (const [expression, value] of Object.entries(expressions)) {
+                const text = `${expression}: ${(
+                    (value as number) * 100
+                ).toFixed(2)}%`;
+                ctx.fillText(text, box._x, yOffset);
+                yOffset -= 18;
+            }
+        }
+        // const detectionData = JSON.parse(detections);
+        // const fixedX = 10; // 左上の固定位置X座標
+        // let fixedY = 15; // 左上の固定位置Y座標
+
+        // for (const detection of detectionData) {
+        //     const expressions = detection.expressions;
+
+        //     // 表情ラベルを左上に描画
+        //     ctx.font = "20px Arial";
+        //     ctx.fillStyle = "white";
+        //     for (const [expression, value] of Object.entries(expressions)) {
+        //         const text = `${expression}: ${(
+        //             (value as number) * 100
+        //         ).toFixed(2)}%`;
+        //         ctx.fillText(text, fixedX, fixedY);
+        //         fixedY += 20; // 次のラベルのY座標を調整
+        //     }
+        // }
     }
     ctx.restore();
 };
