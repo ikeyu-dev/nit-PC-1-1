@@ -7,12 +7,18 @@ export default defineEventHandler(async () => {
             status: string;
             message: string;
         };
+        const seconds = new Date().getSeconds();
         console.log(
-            `[${new Date().toLocaleString()}] backend-api: ${data.status}`
+            `[${new Date().toLocaleString()}] backend-api: ${
+                data.status
+            }\n${"-".repeat(seconds)}`
         );
-    } catch {
+    } catch (error) {
+        console.error(`[${new Date().toLocaleString()}] backend-api: ${error}`);
         throw createError({
             statusCode: 500,
+            message: `server: ${error}`,
         });
     }
+    return;
 });

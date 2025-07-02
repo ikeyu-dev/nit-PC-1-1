@@ -13,9 +13,10 @@ export default defineEventHandler(async (event) => {
         );
         return data;
     } catch (error) {
+        console.error(`[${new Date().toLocaleString()}]: ${error}`);
         throw createError({
             statusCode: 500,
-            statusMessage: `問題の取得に失敗 : ${error}`,
+            message: `server: ${error}`,
         });
     }
 });
