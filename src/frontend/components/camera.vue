@@ -68,7 +68,7 @@ const initialize = () => {
             `https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh/${file}`,
     });
     faceMesh.setOptions({
-        maxNumFaces: 10, // 最大10人
+        maxNumFaces: 1, // 最大10人
         refineLandmarks: true, // 顔のランドマークをより正確に検出
         minDetectionConfidence: 0.5, // 検出の信頼度の閾値
         minTrackingConfidence: 0.5, // トラッキングの信頼度の閾値
@@ -124,7 +124,7 @@ const initialize = () => {
         onFrame: async () => {
             // videoの準備ができていれば、FaceMeshに映像を送る
             if (videoElement.readyState >= 3) {
-                // 1はHAVE_CURRENT_DATA、2はHAVE_ENOUGH_DATA、3はHAVE_FUTURE_DATA
+                // 0はHAVE_NOTHING -> 1はHAVE_METADATA -> 2はHAVE_CURRENT_DATA -> 3はHAVE_FUTURE_DATA
                 await faceMesh?.send({ image: videoElement });
             }
         },
