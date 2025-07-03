@@ -37,7 +37,7 @@ export const draw = (
 
     // 背景にビデオフレームを描画
     if (bgImage) {
-        // ctx.drawImage(results.image, 0, 0, width, height); // 画像、x座標、y座標、幅、高さ
+        ctx.drawImage(results.image, 0, 0, width, height); // 画像、x座標、y座標、幅、高さ
     }
 
     const tesselation = { color: "#f3f3f3", lineWidth: 0.2 }; // 顔の表面(埋め尽くし)のスタイル
@@ -77,6 +77,13 @@ export const draw = (
             ctx.fillText(emphasis[i].toString(), x, y); // landmarkの番号を表示
         }
         const detectionData = JSON.parse(detections);
+        // surprised: 驚き
+        // disgusted: 嫌悪
+        // fearful: 恐怖
+        // angry: 怒り
+        // sad: 悲しみ
+        // happy: 幸福・喜び
+        // neutral: 中立・無表情
         for (const detection of detectionData) {
             const box = detection.box;
             const expressions = detection.expressions;
