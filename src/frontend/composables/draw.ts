@@ -37,7 +37,7 @@ export const draw = (
 
     // 背景にビデオフレームを描画
     if (bgImage) {
-        ctx.drawImage(results.image, 0, 0, width, height); // 画像、x座標、y座標、幅、高さ
+        // ctx.drawImage(results.image, 0, 0, width, height); // 画像、x座標、y座標、幅、高さ
     }
 
     const tesselation = { color: "#f3f3f3", lineWidth: 0.2 }; // 顔の表面(埋め尽くし)のスタイル
@@ -100,31 +100,13 @@ export const draw = (
             ctx.font = "15px Arial";
             ctx.fillStyle = "white";
             for (const [expression, value] of Object.entries(expressions)) {
-                const text = `${expression}: ${(
+                const emotionDrawText = `${expression}: ${(
                     (value as number) * 100
                 ).toFixed(2)}%`;
-                ctx.fillText(text, box._x, yOffset);
+                ctx.fillText(emotionDrawText, box._x, yOffset);
                 yOffset -= 18;
             }
         }
-        // const detectionData = JSON.parse(detections);
-        // const fixedX = 10; // 左上の固定位置X座標
-        // let fixedY = 15; // 左上の固定位置Y座標
-
-        // for (const detection of detectionData) {
-        //     const expressions = detection.expressions;
-
-        //     // 表情ラベルを左上に描画
-        //     ctx.font = "20px Arial";
-        //     ctx.fillStyle = "white";
-        //     for (const [expression, value] of Object.entries(expressions)) {
-        //         const text = `${expression}: ${(
-        //             (value as number) * 100
-        //         ).toFixed(2)}%`;
-        //         ctx.fillText(text, fixedX, fixedY);
-        //         fixedY += 20; // 次のラベルのY座標を調整
-        //     }
-        // }
     }
     ctx.restore();
 };
