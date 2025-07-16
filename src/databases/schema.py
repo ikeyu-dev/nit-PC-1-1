@@ -1,5 +1,4 @@
-from pydantic import BaseModel, ConfigDict
-import datetime
+from pydantic import BaseModel
 
 
 class Question(BaseModel):
