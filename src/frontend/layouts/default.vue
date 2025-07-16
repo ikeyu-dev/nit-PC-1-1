@@ -17,7 +17,7 @@ onMounted(() => {
     setInterval(() => {
         apiHealthCheck();
         nowDate.value = new Date();
-    }, 1000);
+    }, 6000);
 });
 onUnmounted(() => {
     window.removeEventListener("resize", updateVisibility);
