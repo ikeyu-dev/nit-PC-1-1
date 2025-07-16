@@ -1,28 +1,26 @@
 <script setup lang="ts">
 import { manageQuestion } from "~/composables/question";
 import type { Question } from "~/types/question";
+import type { EmotionCount } from "~/types/emotionCount";
+import type { ShowEmotionInfo } from "~/types/showEmotionInfo";
 import correctSound from "~/assets/music/correct.mp3";
 import resultSound from "~/assets/music/result.mp3";
 
 const allQuestions = ref<Question[]>([]);
 const currentQuestion = ref<Question | null>(null);
-const score = ref<number>(0);
-const maxScore: number = 300;
-const emotion = ref<{ show: string; judge: string }>({
+const showEmotionInfo = ref<ShowEmotionInfo >({
     show: "",
     judge: "",
 });
-const emotionCount = ref<{
-    happy: number;
-    sad: number;
-    angry: number;
-    surprised: number;
-}>({
+const emotionCount = ref<EmotionCount>({
     happy: 0,
     sad: 0,
     angry: 0,
     surprised: 0,
 });
+
+const score = ref<number>(0);
+const maxScore: number = 100;
 
 try {
     const question = await manageQuestion("get");
@@ -63,18 +61,18 @@ onMounted(() => {
     window.addEventListener("resize", updateVisibility);
     updateVisibility();
     window.addEventListener("emotionResult", (event) => {
-        emotion.value = (event as CustomEvent).detail || {
+        showEmotionInfo.value = (event as CustomEvent).detail || {
             show: "表情読み取り中...",
             judge: "none",
         };
         if (
-            emotion.value.judge === currentQuestion.value?.tag &&
+            showEmotionInfo.value.judge === currentQuestion.value?.tag &&
             emotionCount.value[
-                emotion.value.judge as keyof typeof emotionCount.value
+                showEmotionInfo.value.judge as keyof typeof emotionCount.value
             ] < 1
         ) {
             emotionCount.value[
-                emotion.value.judge as keyof typeof emotionCount.value
+                showEmotionInfo.value.judge as keyof typeof emotionCount.value
             ] += 1;
             usePlaySound().correct();
             currentQuestion.value =
@@ -152,7 +150,8 @@ onUnmounted(() => {
                                 <div class="stat-value">
                                     <ClientOnly>
                                         {{
-                                            emotion.show || "表情読み取り中..."
+                                            showEmotionInfo.show ||
+                                            "表情読み取り中..."
                                         }}
                                     </ClientOnly>
                                 </div>
@@ -209,7 +208,9 @@ onUnmounted(() => {
                     >
                         <div class="stat">
                             <div class="stat-value text-xl">
-                                {{ emotion.show || "表情読み取り中..." }}
+                                {{
+                                    showEmotionInfo.show || "表情読み取り中..."
+                                }}
                             </div>
                         </div>
                     </div>

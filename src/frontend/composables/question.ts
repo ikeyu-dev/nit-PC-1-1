@@ -1,4 +1,4 @@
-import type { Questions } from "~/types/question";
+import type { Question } from "~/types/question";
 
 export async function manageQuestion(type: string) {
     const CREATE_QUESTION = useRuntimeConfig().public.CREATE_QUESTION;
@@ -12,12 +12,12 @@ export async function manageQuestion(type: string) {
             ? CREATE_QUESTION
             : DELETE_QUESTION;
     try {
-        const { data } = await useFetch<Questions>(`/api/question?uri=${uri}`);
+        const { data } = await useFetch<Question[]>(`/api/question?uri=${uri}`);
         return data.value;
     } catch (error) {
         throw createError({
             statusCode: 500,
-            statusMessage: `問題の取得に失敗 : ${error}`,
+            statusMessage: `${error}`,
         });
     }
 }
