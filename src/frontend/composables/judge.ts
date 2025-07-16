@@ -9,21 +9,22 @@ export async function judge(detections: string) {
         return;
     } else {
         const expressions = detectionData[0].expressions;
-        if (expressions.surprised > 0.85) {
-            emotion.value = { show: "びっくり", judge: "surprised" };
-        } else if (expressions.disgusted > 0.85) {
-            emotion.value = { show: "嫌そうな顔...", judge: "disgusted" };
-        } else if (expressions.fearful > 0.85) {
-            emotion.value = { show: "怖がってる？", judge: "fearful" };
-        } else if (expressions.angry > 0.85) {
-            emotion.value = { show: "怒ってる？", judge: "angry" };
-        } else if (expressions.sad > 0.85) {
-            emotion.value = { show: "悲しそう...", judge: "sad" };
-        } else if (expressions.happy > 0.85) {
-            emotion.value = { show: "嬉しそう！", judge: "happy" };
-        } else {
-            emotion.value = { show: "無表情", judge: "neutral" };
-        }
+        const emotionMap = [
+            { threshold: 0.85, expression: "surprised", show: "びっくり" },
+            { threshold: 0.85, expression: "disgusted", show: "嫌そうな顔..." },
+            { threshold: 0.85, expression: "fearful", show: "怖がってる？" },
+            { threshold: 0.85, expression: "angry", show: "怒ってる？" },
+            { threshold: 0.85, expression: "sad", show: "悲しそう..." },
+            { threshold: 0.85, expression: "happy", show: "嬉しそう！" },
+        ];
+
+        const matchedEmotion = emotionMap.find(
+            ({ threshold, expression }) => expressions[expression] > threshold
+        );
+
+        emotion.value = matchedEmotion
+            ? { show: matchedEmotion.show, judge: matchedEmotion.expression }
+            : { show: "無表情", judge: "neutral" };
     }
     return emotion.value;
 }
