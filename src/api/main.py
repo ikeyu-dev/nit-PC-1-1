@@ -24,7 +24,7 @@ app.include_router(questions_api.router)
 
 @app.get(
     "/",
-    tags=["v1"],
+    tags=["root"],
     responses={
         200: {
             "description": "Root path",
@@ -41,7 +41,7 @@ async def root():
 
 @app.get(
     "/health",
-    tags=["v1"],
+    tags=["health"],
     responses={
         200: {
             "description": "Health check",
