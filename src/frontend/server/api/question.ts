@@ -1,5 +1,5 @@
 import { defineEventHandler, getQuery } from "h3";
-import type { Questions } from "~/composables/questionInterface";
+import type { Questions } from "~/types/question";
 
 export default defineEventHandler(async (event) => {
     const uri = getQuery(event).uri as string;
