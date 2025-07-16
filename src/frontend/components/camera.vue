@@ -4,11 +4,6 @@ import { useUserMedia } from "@vueuse/core";
 import { Camera } from "@mediapipe/camera_utils";
 import { FaceMesh } from "@mediapipe/face_mesh";
 import type { Results } from "@mediapipe/face_mesh";
-import type {
-    WithFaceExpressions,
-    FaceDetection,
-    FaceExpressions,
-} from "face-api.js";
 import * as faceapi from "face-api.js";
 import { Landmarks } from "~/composables/landmarks";
 import { draw } from "~/composables/draw";
@@ -23,8 +18,8 @@ const updateVisibility = () => {
     pc_nav_show.value = window.innerWidth >= 768;
 };
 
-const CANVAS_WIDTH = pc_nav_show.value ? 700 : window.innerWidth; // PCでは700px、モバイルでは画面幅に合わせる
-const CANVAS_HEIGHT = pc_nav_show.value ? 700 : window.innerHeight; // PCでは500px、モバイルでは画面高さに合わせる
+const CANVAS_WIDTH = pc_nav_show.value ? 700 : window.innerWidth;
+const CANVAS_HEIGHT = pc_nav_show.value ? 700 : window.innerHeight;
 
 // DOM要素への参照
 const videoRef = ref<HTMLVideoElement | null>(null);
@@ -90,7 +85,6 @@ const initialize = () => {
             const landmarks = new Landmarks();
             const detections = await faceapi
                 .detectAllFaces(videoRef.value!)
-                .withFaceLandmarks()
                 .withFaceExpressions();
 
             const faceapi_detection = !detections
@@ -115,7 +109,12 @@ const initialize = () => {
                     landmarks.right_eye_bottom,
                 ],
                 JSON.stringify(faceapi_detection)
-            );
+            ).then((emotionJudgeResult) => {
+                const event = new CustomEvent("emotionResult", {
+                    detail: emotionJudgeResult,
+                });
+                window.dispatchEvent(event);
+            });
         }
     });
 
