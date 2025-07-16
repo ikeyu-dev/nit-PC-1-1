@@ -5,6 +5,3 @@ export interface Question {
     tag: string;
     created_at: string;
 }
-
-// Questionの配列として定義
-export type Questions = Question[];
