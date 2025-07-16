@@ -19,6 +19,7 @@ export default defineNuxtConfig({
         },
         host: "0.0.0.0",
     },
+    modules: ["@pinia/nuxt", "pinia-plugin-persistedstate/nuxt"],
     runtimeConfig: {
         public: {
             BASE_API: process.env.BASE_API || "",

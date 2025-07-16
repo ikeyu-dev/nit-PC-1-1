@@ -23,7 +23,10 @@
         "vue-web-cam": "^1.9.0"
     },
     "devDependencies": {
+        "@pinia/nuxt": "^0.11.1",
         "@vitejs/plugin-basic-ssl": "^2.0.0",
-        "daisyui": "^5.0.43"
+        "daisyui": "^5.0.43",
+        "pinia": "^3.0.3",
+        "pinia-plugin-persistedstate": "^4.4.1"
     }
 }
