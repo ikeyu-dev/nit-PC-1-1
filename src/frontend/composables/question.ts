@@ -1,4 +1,4 @@
-import type { Questions } from "~/composables/questionInterface";
+import type { Questions } from "~/types/question";
 
 export async function manageQuestion(type: string) {
     const CREATE_QUESTION = useRuntimeConfig().public.CREATE_QUESTION;

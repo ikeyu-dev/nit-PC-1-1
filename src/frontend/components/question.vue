@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { manageQuestion } from "~/composables/question";
-import type { Question } from "~/composables/questionInterface";
+import type { Question } from "~/types/question";
 import correctSound from "~/assets/music/correct.mp3";
 import resultSound from "~/assets/music/result.mp3";
 
