@@ -1,7 +1,14 @@
 <script setup lang="ts">
+// import { userSetup } from "~/composables/userSetup";
 definePageMeta({
     layout: false,
 });
+const defineNewUser = () => {
+    const newUserName = (
+        document.getElementById("nickname") as HTMLInputElement
+    ).value;
+    // const user = userSetup(newUserName);
+};
 </script>
 
 <template>
@@ -47,7 +54,7 @@ definePageMeta({
                             />
                         </div>
                         <button
-                            @click=""
+                            @click="defineNewUser()"
                             type="submit"
                             class="btn btn-primary w-full"
                         >

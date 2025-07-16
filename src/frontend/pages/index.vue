@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import FaceMeshCanvas from "~/components/camera.vue";
 import PcShow from "~/components/question.vue";
+const username = ref<string>("");
+onMounted(() => {});
 </script>
 
 <template>
