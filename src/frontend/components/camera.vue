@@ -5,7 +5,6 @@ import { Camera } from "@mediapipe/camera_utils";
 import { FaceMesh } from "@mediapipe/face_mesh";
 import type { Results } from "@mediapipe/face_mesh";
 import * as faceapi from "face-api.js";
-import { Landmarks } from "~/composables/landmarks";
 import { draw } from "~/composables/draw";
 
 const faceAPI_uri = "/models";
@@ -82,7 +81,7 @@ const initialize = () => {
     faceMesh.onResults(async (results: Results) => {
         // コンポーネントがマウントされている場合のみ描画
         if (isComponentMounted && ctx) {
-            const landmarks = new Landmarks();
+            // const landmarks = new Landmarks();
             const detections = await faceapi
                 .detectAllFaces(videoRef.value!)
                 .withFaceExpressions();
@@ -97,17 +96,17 @@ const initialize = () => {
                 ctx,
                 results,
                 true,
-                [
-                    landmarks.upper_lip_bottom,
-                    landmarks.lower_lip_top,
-                    landmarks.lip_center_point,
-                    landmarks.lip_corner_left,
-                    landmarks.lip_corner_right,
-                    landmarks.left_eye_top,
-                    landmarks.left_eye_bottom,
-                    landmarks.right_eye_top,
-                    landmarks.right_eye_bottom,
-                ],
+                // [
+                //     landmarks.upper_lip_bottom,
+                //     landmarks.lower_lip_top,
+                //     landmarks.lip_center_point,
+                //     landmarks.lip_corner_left,
+                //     landmarks.lip_corner_right,
+                //     landmarks.left_eye_top,
+                //     landmarks.left_eye_bottom,
+                //     landmarks.right_eye_top,
+                //     landmarks.right_eye_bottom,
+                // ],
                 JSON.stringify(faceapi_detection)
             ).then((emotionJudgeResult) => {
                 const event = new CustomEvent("emotionResult", {

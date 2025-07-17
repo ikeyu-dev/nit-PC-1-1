@@ -27,7 +27,7 @@ export const draw = async (
     ctx: CanvasRenderingContext2D,
     results: Results,
     bgImage: boolean, // capture imageを描画するか
-    emphasis: number[],
+    // emphasis: number[],
     detections: string
 ) => {
     const width = ctx.canvas.width; // canvasの幅
@@ -64,21 +64,21 @@ export const draw = async (
         // 唇
         drawConnectors(ctx, landmarks, FACEMESH_LIPS, face_oval);
 
-        for (let i = 0; i < emphasis.length; i++) {
-            const emphasisLandmark = landmarks[
-                emphasis[i]
-            ] as NormalizedLandmark;
-            const x = emphasisLandmark.x * width; // x座標
-            const y = emphasisLandmark.y * height; // y座標
-            ctx.beginPath();
-            ctx.arc(x, y, 5, 0, 2 * Math.PI); // 円を描く
-            ctx.fillStyle = "red"; // 強調表示の色
-            ctx.fill(); // 円を塗りつぶす
+        // for (let i = 0; i < emphasis.length; i++) {
+        //     const emphasisLandmark = landmarks[
+        //         emphasis[i]
+        //     ] as NormalizedLandmark;
+        //     const x = emphasisLandmark.x * width; // x座標
+        //     const y = emphasisLandmark.y * height; // y座標
+        //     ctx.beginPath();
+        //     ctx.arc(x, y, 5, 0, 2 * Math.PI); // 円を描く
+        //     ctx.fillStyle = "red"; // 強調表示の色
+        //     ctx.fill(); // 円を塗りつぶす
 
-            ctx.font = "12px Arial";
-            ctx.fillStyle = "white"; // 番号の色
-            ctx.fillText(emphasis[i].toString(), x, y); // landmarkの番号を表示
-        }
+        //     ctx.font = "12px Arial";
+        //     ctx.fillStyle = "white"; // 番号の色
+        //     ctx.fillText(emphasis[i].toString(), x, y); // landmarkの番号を表示
+        // }
         const detectionData = JSON.parse(detections);
         // surprised: 驚き
         // disgusted: 嫌悪
