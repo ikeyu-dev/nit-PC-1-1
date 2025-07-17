@@ -63,7 +63,7 @@ const initialize = () => {
             `https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh/${file}`,
     });
     faceMesh.setOptions({
-        maxNumFaces: 1, // 最大10人
+        maxNumFaces: 10, // 最大10人
         refineLandmarks: true, // 顔のランドマークをより正確に検出
         minDetectionConfidence: 0.5, // 検出の信頼度の閾値
         minTrackingConfidence: 0.5, // トラッキングの信頼度の閾値
