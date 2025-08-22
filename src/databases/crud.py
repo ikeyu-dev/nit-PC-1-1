@@ -36,20 +36,3 @@ def delete_question(db: Session, question_id: int):
     db.delete(question)
     db.commit()
     return True
-
-
-def create_score(db: Session, score: schema.Score):
-    try:
-        new_score = model.Score(
-            id=score.id,
-            score=score.score,
-            nickname=score.nickname,
-            created_at=datetime.now(),
-        )
-        db.add(new_score)
-        db.commit()
-        db.refresh(new_score)
-    except Exception as e:
-        db.rollback()
-        return False
-    return score

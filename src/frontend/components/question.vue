@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { manageQuestion } from "~/composables/question";
+import { useScoreStore } from "~/composables/score";
 import type { Question } from "~/types/question";
 import type { EmotionCount } from "~/types/emotionCount";
 import type { ShowEmotionInfo } from "~/types/showEmotionInfo";
@@ -8,7 +9,7 @@ import resultSound from "~/assets/music/result.mp3";
 
 const allQuestions = ref<Question[]>([]);
 const currentQuestion = ref<Question | null>(null);
-const showEmotionInfo = ref<ShowEmotionInfo >({
+const showEmotionInfo = ref<ShowEmotionInfo>({
     show: "",
     judge: "",
 });
@@ -19,8 +20,12 @@ const emotionCount = ref<EmotionCount>({
     surprised: 0,
 });
 
+const count = ref<number>(0);
+
 const score = ref<number>(0);
 const maxScore: number = 100;
+
+const scoreStore = useScoreStore();
 
 try {
     const question = await manageQuestion("get");
@@ -39,6 +44,8 @@ const usePlaySound = () => {
             audio.volume = 1;
             audio.play();
             score.value = (score.value || 0) + 25;
+            scoreStore.setScore(score.value);
+            console.log(`${scoreStore.score}`);
         }
     };
     const result = () => {
@@ -83,6 +90,35 @@ onMounted(() => {
                             q.tag as keyof typeof emotionCount.value
                         ] < 1
                 ) || null;
+        } else if (scoreStore.score === maxScore) {
+            alert("ゲームクリア！おめでとうございます！");
+            window.location.href = "/result";
+        } else {
+            count.value += 1;
+            if (count.value >= 100) {
+                emotionCount.value[
+                    currentQuestion.value
+                        ?.tag as keyof typeof emotionCount.value
+                ] += 1;
+                usePlaySound().result();
+                count.value = 0;
+                currentQuestion.value =
+                    allQuestions.value.find(
+                        (q) =>
+                            q.tag !== currentQuestion.value?.tag &&
+                            emotionCount.value[
+                                q.tag as keyof typeof emotionCount.value
+                            ] < 1
+                    ) || null;
+            }
+        }
+        if (currentQuestion.value === null && score.value !== maxScore) {
+            if (score.value === 0) {
+                scoreStore.setScore(100000);
+            }
+            setTimeout(() => {
+                window.location.href = "/result";
+            }, 10000);
         }
     });
 });

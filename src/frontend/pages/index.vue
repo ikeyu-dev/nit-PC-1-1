@@ -1,8 +1,17 @@
 <script setup lang="ts">
+// import { getCookie } from "~/composables/cookie";
+import { useUserStore } from "~/composables/user";
 import FaceMeshCanvas from "~/components/camera.vue";
 import PcShow from "~/components/question.vue";
-const username = ref<string>("");
-onMounted(() => {});
+
+onMounted(() => {
+    const userStore = useUserStore();
+    if (userStore.user === null || userStore.user.nickname === "") {
+        window.location.href = "/newGame";
+    }
+    const nickname = computed(() => userStore.user?.nickname);
+    console.log(nickname.value);
+});
 </script>
 
 <template>

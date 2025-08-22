@@ -1,29 +1,27 @@
 <script setup lang="ts">
+import { useScoreStore } from "~/composables/score";
 import { useUserStore } from "~/composables/user";
-import { getCookie } from "~/composables/cookie";
-import type { User } from "~/types/user";
-definePageMeta({
-    layout: false,
-});
 
+const scoreStore = useScoreStore();
 const userStore = useUserStore();
 
+const score = computed(() => scoreStore.score) ? scoreStore.score : 0;
+const nickname = computed(() => userStore.user?.nickname);
+
+const resetGame = () => {
+    scoreStore.clearScore();
+    userStore.clearUser();
+};
+
 onMounted(() => {
-    if (userStore.user?.nickname !== "" && userStore.user !== null) {
-        window.location.href = "/";
+    if (!userStore.user?.nickname) {
+        window.location.href = "/newGame";
     }
 });
 
-const defineNewUser = () => {
-    const newUserName = (
-        document.getElementById("nickname") as HTMLInputElement
-    ).value as string;
-    const userStore = useUserStore();
-    userStore.setUser({
-        nickname: newUserName,
-        score: 0,
-    } as User);
-};
+definePageMeta({
+    layout: false,
+});
 </script>
 
 <template>
@@ -45,7 +43,7 @@ const defineNewUser = () => {
                         <p
                             class="text-2xl font-bold leading-tight tracking-tight text-neutral md:text-3xl"
                         >
-                            新規ゲーム
+                            ゲームリザルト
                         </p>
                     </div>
                     <form
@@ -65,14 +63,35 @@ const defineNewUser = () => {
                                 id="nickname"
                                 class="input input-bordered w-full"
                                 placeholder="ニックネームを入力"
+                                autocomplete="nickname"
+                                :value="nickname"
+                                readonly
+                            />
+                        </div>
+                        <div class="form-control">
+                            <label
+                                for="score"
+                                class="label"
+                            >
+                                <span class="label-text">スコア</span>
+                            </label>
+                            <input
+                                type="number"
+                                name="score"
+                                id="score"
+                                class="input input-bordered w-full"
+                                placeholder="スコアを表示"
+                                autocomplete="score"
+                                :value="score"
+                                readonly
                             />
                         </div>
                         <button
-                            @click="defineNewUser()"
+                            @click="resetGame()"
                             type="submit"
                             class="btn btn-primary w-full"
                         >
-                            スタート
+                            終了
                         </button>
                     </form>
                 </div>
