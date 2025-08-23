@@ -24,6 +24,14 @@ const defineNewUser = () => {
         score: 0,
     } as User);
 };
+const defineNewGuest = () => {
+    const userStore = useUserStore();
+    const randomId = Math.random().toString(36).substring(2, 10);
+    userStore.setUser({
+        nickname: `ゲスト-${randomId}`,
+        score: 0,
+    } as User);
+};
 </script>
 
 <template>
@@ -73,6 +81,13 @@ const defineNewUser = () => {
                             class="btn btn-primary w-full"
                         >
                             スタート
+                        </button>
+                        <button
+                            @click="defineNewGuest()"
+                            type="submit"
+                            class="btn btn-link w-full"
+                        >
+                            ゲストとして開始
                         </button>
                     </form>
                 </div>
