@@ -30,7 +30,7 @@ const cameraOptions = computed(() =>
     videoDevices.value.map((device, index) => ({
         label: device.label || `カメラ ${index + 1}`,
         value: device.deviceId,
-    }))
+    })),
 );
 
 // MediaPipe インスタンス 保持
@@ -52,7 +52,8 @@ watch(stream, (newStream) => {
 const findPreferredVideoDevice = (devices: MediaDeviceInfo[]) => {
     const externalCameraPattern =
         /usb|external|webcam|logitech|elgato|capture|hdmi|brio|c920|c922|anker|obs/i;
-    const builtInCameraPattern = /facetime|built-?in|macbook|continuity|iphone/i;
+    const builtInCameraPattern =
+        /facetime|built-?in|macbook|continuity|iphone/i;
 
     return (
         devices.find((device) => externalCameraPattern.test(device.label)) ||
@@ -141,7 +142,7 @@ const initialize = () => {
                     //     landmarks.right_eye_top,
                     //     landmarks.right_eye_bottom,
                     // ],
-                    JSON.stringify(faceapi_detection)
+                    JSON.stringify(faceapi_detection),
                 ).then((emotionJudgeResult) => {
                     const event = new CustomEvent("emotionResult", {
                         detail: emotionJudgeResult,
@@ -184,10 +185,12 @@ const loadVideoDevices = async () => {
     if (!navigator.mediaDevices?.enumerateDevices) return;
 
     const devices = await navigator.mediaDevices.enumerateDevices();
-    videoDevices.value = devices.filter((device) => device.kind === "videoinput");
+    videoDevices.value = devices.filter(
+        (device) => device.kind === "videoinput",
+    );
 
     const selectedDeviceStillExists = videoDevices.value.some(
-        (device) => device.deviceId === selectedDeviceId.value
+        (device) => device.deviceId === selectedDeviceId.value,
     );
 
     if (!selectedDeviceId.value || !selectedDeviceStillExists) {
@@ -306,12 +309,12 @@ onUnmounted(() => {
                     {{ device.label }}
                 </option>
             </select>
-            <p
+            <!-- <p
                 v-if="activeCameraLabel"
                 class="text-neutral text-sm mt-2"
             >
                 使用中: {{ activeCameraLabel }}
-            </p>
+            </p> -->
             <p
                 v-if="cameraError"
                 class="text-error text-sm mt-2"
