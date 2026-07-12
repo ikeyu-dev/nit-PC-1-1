@@ -10,16 +10,16 @@ export async function judge(detections: string) {
     } else {
         const expressions = detectionData[0].expressions;
         const emotionMap = [
-            { threshold: 0.8, expression: "surprised", show: "びっくり" },
+            { threshold: 0.9, expression: "surprised", show: "びっくり" },
             { threshold: 0.99, expression: "disgusted", show: "嫌そうな顔..." },
             { threshold: 0.99, expression: "fearful", show: "怖がってる？" },
-            { threshold: 0.2, expression: "angry", show: "怒ってる？" }, // TODO: 閾値調整
+            { threshold: 0.15, expression: "angry", show: "怒ってる？" }, // TODO: 閾値調整
             { threshold: 0.7, expression: "sad", show: "悲しそう..." },
             { threshold: 0.99, expression: "happy", show: "嬉しそう！" },
         ];
 
         const matchedEmotion = emotionMap.find(
-            ({ threshold, expression }) => expressions[expression] > threshold
+            ({ threshold, expression }) => expressions[expression] > threshold,
         );
 
         emotion.value = matchedEmotion
