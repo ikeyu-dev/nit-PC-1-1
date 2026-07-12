@@ -24,6 +24,7 @@ const canvasRef = ref<HTMLCanvasElement | null>(null);
 const videoDevices = ref<MediaDeviceInfo[]>([]);
 const selectedDeviceId = ref<string>("");
 const cameraError = ref<string>("");
+const activeCameraLabel = ref<string>("");
 const stream = ref<MediaStream | null>(null);
 const cameraOptions = computed(() =>
     videoDevices.value.map((device, index) => ({
@@ -47,6 +48,18 @@ watch(stream, (newStream) => {
         videoRef.value.play();
     }
 });
+
+const findPreferredVideoDevice = (devices: MediaDeviceInfo[]) => {
+    const externalCameraPattern =
+        /usb|external|webcam|logitech|elgato|capture|hdmi|brio|c920|c922|anker|obs/i;
+    const builtInCameraPattern = /facetime|built-?in|macbook|continuity|iphone/i;
+
+    return (
+        devices.find((device) => externalCameraPattern.test(device.label)) ||
+        devices.find((device) => !builtInCameraPattern.test(device.label)) ||
+        devices[0]
+    );
+};
 
 // 初期化
 const initialize = () => {
@@ -160,6 +173,11 @@ const initialize = () => {
 const stopStream = () => {
     stream.value?.getTracks().forEach((track) => track.stop());
     stream.value = null;
+    activeCameraLabel.value = "";
+    if (videoRef.value) {
+        videoRef.value.pause();
+        videoRef.value.srcObject = null;
+    }
 };
 
 const loadVideoDevices = async () => {
@@ -168,16 +186,17 @@ const loadVideoDevices = async () => {
     const devices = await navigator.mediaDevices.enumerateDevices();
     videoDevices.value = devices.filter((device) => device.kind === "videoinput");
 
-    if (!selectedDeviceId.value && videoDevices.value.length > 0) {
-        const externalCamera =
-            videoDevices.value.find((device) =>
-                /usb|external|webcam|camera/i.test(device.label)
-            ) || videoDevices.value[0];
-        selectedDeviceId.value = externalCamera.deviceId;
+    const selectedDeviceStillExists = videoDevices.value.some(
+        (device) => device.deviceId === selectedDeviceId.value
+    );
+
+    if (!selectedDeviceId.value || !selectedDeviceStillExists) {
+        selectedDeviceId.value =
+            findPreferredVideoDevice(videoDevices.value)?.deviceId || "";
     }
 };
 
-const startCamera = async () => {
+const startCamera = async (retryWithSelectedDevice = true) => {
     if (!navigator.mediaDevices?.getUserMedia) {
         cameraError.value = "このブラウザではカメラを利用できません。";
         return;
@@ -185,21 +204,47 @@ const startCamera = async () => {
 
     cameraError.value = "";
     stopStream();
+    const requestedDeviceId = selectedDeviceId.value;
 
     try {
         const mediaStream = await navigator.mediaDevices.getUserMedia({
             video: {
                 width: CANVAS_WIDTH,
                 height: CANVAS_HEIGHT,
-                ...(selectedDeviceId.value
-                    ? { deviceId: { exact: selectedDeviceId.value } }
+                ...(requestedDeviceId
+                    ? { deviceId: { exact: requestedDeviceId } }
                     : { facingMode: "user" }),
             },
             audio: false,
         });
 
         stream.value = mediaStream;
+        const activeTrack = mediaStream.getVideoTracks()[0];
+        const activeSettings = activeTrack?.getSettings();
+        activeCameraLabel.value = activeTrack?.label || "選択中のカメラ";
         await loadVideoDevices();
+
+        if (
+            retryWithSelectedDevice &&
+            !requestedDeviceId &&
+            selectedDeviceId.value &&
+            activeSettings?.deviceId !== selectedDeviceId.value
+        ) {
+            await startCamera(false);
+            return;
+        }
+
+        if (
+            requestedDeviceId &&
+            activeSettings?.deviceId &&
+            activeSettings.deviceId !== requestedDeviceId
+        ) {
+            console.warn("Selected camera was not applied.", {
+                requestedDeviceId,
+                activeDeviceId: activeSettings.deviceId,
+                activeCameraLabel: activeCameraLabel.value,
+            });
+        }
     } catch (error) {
         console.error(error);
         cameraError.value =
@@ -208,7 +253,7 @@ const startCamera = async () => {
 };
 
 const changeCamera = async () => {
-    await startCamera();
+    await startCamera(false);
 };
 
 onMounted(() => {
@@ -261,6 +306,12 @@ onUnmounted(() => {
                     {{ device.label }}
                 </option>
             </select>
+            <p
+                v-if="activeCameraLabel"
+                class="text-neutral text-sm mt-2"
+            >
+                使用中: {{ activeCameraLabel }}
+            </p>
             <p
                 v-if="cameraError"
                 class="text-error text-sm mt-2"
