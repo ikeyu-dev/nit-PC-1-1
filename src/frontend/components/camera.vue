@@ -4,6 +4,7 @@ import { FaceMesh } from "@mediapipe/face_mesh";
 import type { Results } from "@mediapipe/face_mesh";
 import * as faceapi from "face-api.js";
 import { draw } from "~/composables/draw";
+import { Landmarks } from "~/composables/landmarks";
 
 const faceAPI_uri = "/models";
 
@@ -115,7 +116,7 @@ const initialize = () => {
             !isDetecting
         ) {
             isDetecting = true;
-            // const landmarks = new Landmarks();
+            const landmarks = new Landmarks();
             try {
                 const detections = await faceapi
                     .detectAllFaces(videoRef.value!)
@@ -131,17 +132,17 @@ const initialize = () => {
                     ctx,
                     results,
                     true,
-                    // [
-                    //     landmarks.upper_lip_bottom,
-                    //     landmarks.lower_lip_top,
-                    //     landmarks.lip_center_point,
-                    //     landmarks.lip_corner_left,
-                    //     landmarks.lip_corner_right,
-                    //     landmarks.left_eye_top,
-                    //     landmarks.left_eye_bottom,
-                    //     landmarks.right_eye_top,
-                    //     landmarks.right_eye_bottom,
-                    // ],
+                    [
+                        landmarks.upper_lip_bottom,
+                        landmarks.lower_lip_top,
+                        landmarks.lip_center_point,
+                        landmarks.lip_corner_left,
+                        landmarks.lip_corner_right,
+                        landmarks.left_eye_top,
+                        landmarks.left_eye_bottom,
+                        landmarks.right_eye_top,
+                        landmarks.right_eye_bottom,
+                    ],
                     JSON.stringify(faceapi_detection),
                 ).then((emotionJudgeResult) => {
                     const event = new CustomEvent("emotionResult", {
