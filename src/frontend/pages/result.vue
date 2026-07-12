@@ -1,22 +1,47 @@
 <script setup lang="ts">
 import { useScoreStore } from "~/composables/score";
 import { useUserStore } from "~/composables/user";
+import resultSound from "~/assets/music/result.mp3";
 
 const scoreStore = useScoreStore();
 const userStore = useUserStore();
 
-const score = computed(() => scoreStore.score) ? scoreStore.score : 0;
+const flag = ref<boolean>(false);
+
+const score = ref(0);
+
 const nickname = computed(() => userStore.user?.nickname);
 
 const resetGame = () => {
     scoreStore.clearScore();
     userStore.clearUser();
+    window.location.href = "/newGame";
+};
+
+const goHome = () => {
+    window.location.href = "/";
+};
+
+const usePlaySound = () => {
+    const result = () => {
+        const audio = new Audio(resultSound);
+        audio.volume = 1;
+        audio.play();
+    };
+    return { result };
 };
 
 onMounted(() => {
     if (!userStore.user?.nickname) {
         window.location.href = "/newGame";
     }
+    setTimeout(() => {
+        score.value = scoreStore.score as number;
+    }, 3000);
+    usePlaySound().result();
+    setTimeout(() => {
+        flag.value = true;
+    }, 4000);
 });
 
 definePageMeta({
@@ -76,10 +101,11 @@ definePageMeta({
                                 <span class="label-text">スコア</span>
                             </label>
                             <input
+                                v-if="flag"
                                 type="number"
                                 name="score"
                                 id="score"
-                                class="input input-bordered w-full"
+                                class="input input-bordered w-full text-3xl"
                                 placeholder="スコアを表示"
                                 autocomplete="score"
                                 :value="score"
@@ -87,9 +113,16 @@ definePageMeta({
                             />
                         </div>
                         <button
-                            @click="resetGame()"
-                            type="submit"
+                            @click="goHome()"
+                            type="button"
                             class="btn btn-primary w-full"
+                        >
+                            ホームに戻る
+                        </button>
+                        <button
+                            @click="resetGame()"
+                            type="button"
+                            class="btn btn-link w-full"
                         >
                             終了
                         </button>

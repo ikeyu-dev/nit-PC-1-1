@@ -1,5 +1,6 @@
 .env
 
+.venv/
 venv/
 
 *.pyc
@@ -11,3 +12,4 @@ node_modules/
 .nuxt/
 .output/
 *.pem
+

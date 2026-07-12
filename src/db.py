@@ -1,6 +1,6 @@
 from sqlalchemy import create_engine
 from sqlalchemy.orm import declarative_base
-from sqlalchemy.orm import sessionmaker, scoped_session
+from sqlalchemy.orm import sessionmaker
 from dotenv import load_dotenv
 import os
 
@@ -15,4 +15,8 @@ Base = declarative_base()
 
 
 def db_session():
-    return scoped_session(SessionLocal)
+    session = SessionLocal()
+    try:
+        yield session
+    finally:
+        session.close()

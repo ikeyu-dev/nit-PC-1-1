@@ -1,10 +1,10 @@
-version: "3"
 services:
     api:
         container_name: phisical-computing-api
         build: .
         depends_on:
-            - db
+            db:
+                condition: service_healthy
         environment:
             DATABASE_URL: ${DATABASE_URL}
         ports:
@@ -20,6 +20,15 @@ services:
             POSTGRES_USER: phisical_computing
             POSTGRES_PASSWORD: STRONG_DB_PASSWORD
         restart: unless-stopped
+        healthcheck:
+            test:
+                [
+                    "CMD-SHELL",
+                    "pg_isready -U phisical_computing -d phisical_computing",
+                ]
+            interval: 5s
+            timeout: 5s
+            retries: 5
         volumes:
             - db_data:/var/lib/postgresql/data
 volumes:

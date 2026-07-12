@@ -1,7 +1,5 @@
 <script setup lang="ts">
-import { ref, onMounted, onUnmounted, watch } from "vue";
-import { useUserMedia } from "@vueuse/core";
-import { Camera } from "@mediapipe/camera_utils";
+import { computed, ref, onMounted, onUnmounted, watch } from "vue";
 import { FaceMesh } from "@mediapipe/face_mesh";
 import type { Results } from "@mediapipe/face_mesh";
 import * as faceapi from "face-api.js";
@@ -23,23 +21,24 @@ const CANVAS_HEIGHT = pc_nav_show.value ? 700 : window.innerHeight;
 // DOM要素への参照
 const videoRef = ref<HTMLVideoElement | null>(null);
 const canvasRef = ref<HTMLCanvasElement | null>(null);
-
-// @vueuse/coreでカメラアクセスを管理
-const { stream, enabled } = useUserMedia({
-    constraints: {
-        video: {
-            width: CANVAS_WIDTH,
-            height: CANVAS_HEIGHT,
-            facingMode: "user",
-        },
-        audio: false,
-    },
-});
+const videoDevices = ref<MediaDeviceInfo[]>([]);
+const selectedDeviceId = ref<string>("");
+const cameraError = ref<string>("");
+const stream = ref<MediaStream | null>(null);
+const cameraOptions = computed(() =>
+    videoDevices.value.map((device, index) => ({
+        label: device.label || `カメラ ${index + 1}`,
+        value: device.deviceId,
+    }))
+);
 
 // MediaPipe インスタンス 保持
 let faceMesh: FaceMesh | null = null;
-let camera: Camera | null = null;
 let isComponentMounted = true;
+let isInitialized = false;
+let areFaceApiModelsLoaded = false;
+let isDetecting = false;
+let animationFrameId: number | null = null;
 
 // streamが取得できたらvideoに接続
 watch(stream, (newStream) => {
@@ -51,7 +50,15 @@ watch(stream, (newStream) => {
 
 // 初期化
 const initialize = () => {
-    if (!isComponentMounted || !videoRef.value || !canvasRef.value) return;
+    if (
+        isInitialized ||
+        !isComponentMounted ||
+        !videoRef.value ||
+        !canvasRef.value
+    )
+        return;
+
+    isInitialized = true;
 
     const videoElement = videoRef.value;
     const canvasElement = canvasRef.value;
@@ -73,70 +80,139 @@ const initialize = () => {
         faceapi.nets.ssdMobilenetv1.loadFromUri(faceAPI_uri),
         faceapi.nets.faceLandmark68Net.loadFromUri(faceAPI_uri),
         faceapi.nets.faceExpressionNet.loadFromUri(faceAPI_uri),
-    ]).then(() => {
-        console.log("✅ face-api models loaded.");
-    });
+    ])
+        .then(() => {
+            areFaceApiModelsLoaded = true;
+            console.log("✅ face-api models loaded.");
+        })
+        .catch((error) => {
+            console.error("face-api models could not be loaded.", error);
+            cameraError.value =
+                "表情認識モデルを読み込めませんでした。ページを再読み込みしてください。";
+        });
 
     // 検出結果のコールバック関数
     faceMesh.onResults(async (results: Results) => {
         // コンポーネントがマウントされている場合のみ描画
-        if (isComponentMounted && ctx) {
+        if (
+            isComponentMounted &&
+            ctx &&
+            areFaceApiModelsLoaded &&
+            !isDetecting
+        ) {
+            isDetecting = true;
             // const landmarks = new Landmarks();
-            const detections = await faceapi
-                .detectAllFaces(videoRef.value!)
-                .withFaceExpressions();
+            try {
+                const detections = await faceapi
+                    .detectAllFaces(videoRef.value!)
+                    .withFaceExpressions();
 
-            const faceapi_detection = !detections
-                ? []
-                : detections.map((detection) => ({
-                      expressions: detection.expressions, // 表情データ
-                      box: detection.detection.box, // 顔の位置情報
-                  }));
-            draw(
-                ctx,
-                results,
-                true,
-                // [
-                //     landmarks.upper_lip_bottom,
-                //     landmarks.lower_lip_top,
-                //     landmarks.lip_center_point,
-                //     landmarks.lip_corner_left,
-                //     landmarks.lip_corner_right,
-                //     landmarks.left_eye_top,
-                //     landmarks.left_eye_bottom,
-                //     landmarks.right_eye_top,
-                //     landmarks.right_eye_bottom,
-                // ],
-                JSON.stringify(faceapi_detection)
-            ).then((emotionJudgeResult) => {
-                const event = new CustomEvent("emotionResult", {
-                    detail: emotionJudgeResult,
+                const faceapi_detection = !detections
+                    ? []
+                    : detections.map((detection) => ({
+                          expressions: detection.expressions, // 表情データ
+                          box: detection.detection.box, // 顔の位置情報
+                      }));
+                draw(
+                    ctx,
+                    results,
+                    true,
+                    // [
+                    //     landmarks.upper_lip_bottom,
+                    //     landmarks.lower_lip_top,
+                    //     landmarks.lip_center_point,
+                    //     landmarks.lip_corner_left,
+                    //     landmarks.lip_corner_right,
+                    //     landmarks.left_eye_top,
+                    //     landmarks.left_eye_bottom,
+                    //     landmarks.right_eye_top,
+                    //     landmarks.right_eye_bottom,
+                    // ],
+                    JSON.stringify(faceapi_detection)
+                ).then((emotionJudgeResult) => {
+                    const event = new CustomEvent("emotionResult", {
+                        detail: emotionJudgeResult,
+                    });
+                    window.dispatchEvent(event);
                 });
-                window.dispatchEvent(event);
-            });
+            } catch (error) {
+                console.error("face-api inference failed.", error);
+            } finally {
+                isDetecting = false;
+            }
         }
     });
 
-    // --- MediaPipe Camera セットアップ ---
-    camera = new Camera(videoElement, {
-        onFrame: async () => {
-            // videoの準備ができていれば、FaceMeshに映像を送る
-            if (videoElement.readyState >= 3) {
-                // 0はHAVE_NOTHING -> 1はHAVE_METADATA -> 2はHAVE_CURRENT_DATA -> 3はHAVE_FUTURE_DATA
-                await faceMesh?.send({ image: videoElement });
-            }
-        },
-        width: CANVAS_WIDTH,
-        height: CANVAS_HEIGHT,
-    });
-    camera.start();
+    const sendFrame = async () => {
+        if (!isComponentMounted) return;
+
+        // videoの準備ができていれば、FaceMeshに映像を送る
+        if (videoElement.readyState >= 3) {
+            // 0はHAVE_NOTHING -> 1はHAVE_METADATA -> 2はHAVE_CURRENT_DATA -> 3はHAVE_FUTURE_DATA
+            await faceMesh?.send({ image: videoElement });
+        }
+        animationFrameId = window.requestAnimationFrame(sendFrame);
+    };
+    sendFrame();
     console.log("✅ MediaPipe Initialized.");
+};
+
+const stopStream = () => {
+    stream.value?.getTracks().forEach((track) => track.stop());
+    stream.value = null;
+};
+
+const loadVideoDevices = async () => {
+    if (!navigator.mediaDevices?.enumerateDevices) return;
+
+    const devices = await navigator.mediaDevices.enumerateDevices();
+    videoDevices.value = devices.filter((device) => device.kind === "videoinput");
+
+    if (!selectedDeviceId.value && videoDevices.value.length > 0) {
+        const externalCamera =
+            videoDevices.value.find((device) =>
+                /usb|external|webcam|camera/i.test(device.label)
+            ) || videoDevices.value[0];
+        selectedDeviceId.value = externalCamera.deviceId;
+    }
+};
+
+const startCamera = async () => {
+    if (!navigator.mediaDevices?.getUserMedia) {
+        cameraError.value = "このブラウザではカメラを利用できません。";
+        return;
+    }
+
+    cameraError.value = "";
+    stopStream();
+
+    try {
+        const mediaStream = await navigator.mediaDevices.getUserMedia({
+            video: {
+                width: CANVAS_WIDTH,
+                height: CANVAS_HEIGHT,
+                ...(selectedDeviceId.value
+                    ? { deviceId: { exact: selectedDeviceId.value } }
+                    : { facingMode: "user" }),
+            },
+            audio: false,
+        });
+
+        stream.value = mediaStream;
+        await loadVideoDevices();
+    } catch (error) {
+        console.error(error);
+        cameraError.value =
+            "カメラに接続できません。ブラウザの権限と接続中のカメラを確認してください。";
+    }
+};
+
+const changeCamera = async () => {
+    await startCamera();
 };
 
 onMounted(() => {
     isComponentMounted = true;
-    // カメラへのアクセスを有効にする
-    enabled.value = true;
 
     if (videoRef.value) {
         // video要素のメタデータが読み込まれたら初期化処理を開始
@@ -145,13 +221,16 @@ onMounted(() => {
 
     window.addEventListener("resize", updateVisibility);
     updateVisibility();
+    startCamera();
 });
 
 // コンポーネントがアンマウントされるときにリソースを解放
 onUnmounted(() => {
     isComponentMounted = false;
-    enabled.value = false; // カメラを停止
-    camera?.stop();
+    stopStream();
+    if (animationFrameId !== null) {
+        window.cancelAnimationFrame(animationFrameId);
+    }
     faceMesh?.close();
 
     window.removeEventListener("resize", updateVisibility);
@@ -168,6 +247,27 @@ onUnmounted(() => {
         muted
     ></video>
     <div class="canvas-wrapper flex justify-center items-center">
+        <div class="camera-controls">
+            <select
+                v-model="selectedDeviceId"
+                class="select select-bordered select-sm"
+                @change="changeCamera"
+            >
+                <option
+                    v-for="device in cameraOptions"
+                    :key="device.value"
+                    :value="device.value"
+                >
+                    {{ device.label }}
+                </option>
+            </select>
+            <p
+                v-if="cameraError"
+                class="text-error text-sm mt-2"
+            >
+                {{ cameraError }}
+            </p>
+        </div>
         <canvas
             ref="canvasRef"
             :class="[
@@ -185,6 +285,14 @@ onUnmounted(() => {
     position: absolute;
     background-color: #1e1e1e;
     object-fit: contain;
+}
+
+.camera-controls {
+    position: absolute;
+    top: 104px;
+    left: 30px;
+    z-index: 10;
+    width: min(320px, calc(50% - 30px));
 }
 
 .canvas.mobile {

@@ -20,10 +20,9 @@ const emotionCount = ref<EmotionCount>({
     surprised: 0,
 });
 
-const count = ref<number>(0);
-
 const score = ref<number>(0);
 const maxScore: number = 100;
+const isGameFinished = ref(false);
 
 const scoreStore = useScoreStore();
 
@@ -64,67 +63,51 @@ const updateVisibility = () => {
     pc_nav_show.value = window.innerWidth >= 768;
 };
 
+const handleEmotionResult = (event: Event) => {
+    if (isGameFinished.value) return;
+
+    showEmotionInfo.value = (event as CustomEvent).detail || {
+        show: "表情読み取り中...",
+        judge: "none",
+    };
+    if (
+        showEmotionInfo.value.judge === currentQuestion.value?.tag &&
+        emotionCount.value[
+            showEmotionInfo.value.judge as keyof typeof emotionCount.value
+        ] < 1
+    ) {
+        emotionCount.value[
+            showEmotionInfo.value.judge as keyof typeof emotionCount.value
+        ] += 1;
+        usePlaySound().correct();
+        currentQuestion.value =
+            allQuestions.value.find(
+                (q) =>
+                    q.tag !== currentQuestion.value?.tag &&
+                    emotionCount.value[
+                        q.tag as keyof typeof emotionCount.value
+                    ] < 1
+            ) || null;
+    }
+
+    if (score.value === maxScore) {
+        isGameFinished.value = true;
+        usePlaySound().result();
+        setTimeout(() => {
+            window.location.href = "/result";
+        }, 1000);
+    }
+};
+
 onMounted(() => {
     window.addEventListener("resize", updateVisibility);
     updateVisibility();
-    window.addEventListener("emotionResult", (event) => {
-        showEmotionInfo.value = (event as CustomEvent).detail || {
-            show: "表情読み取り中...",
-            judge: "none",
-        };
-        if (
-            showEmotionInfo.value.judge === currentQuestion.value?.tag &&
-            emotionCount.value[
-                showEmotionInfo.value.judge as keyof typeof emotionCount.value
-            ] < 1
-        ) {
-            emotionCount.value[
-                showEmotionInfo.value.judge as keyof typeof emotionCount.value
-            ] += 1;
-            usePlaySound().correct();
-            currentQuestion.value =
-                allQuestions.value.find(
-                    (q) =>
-                        q.tag !== currentQuestion.value?.tag &&
-                        emotionCount.value[
-                            q.tag as keyof typeof emotionCount.value
-                        ] < 1
-                ) || null;
-        } else if (scoreStore.score === maxScore) {
-            alert("ゲームクリア！おめでとうございます！");
-            window.location.href = "/result";
-        } else {
-            count.value += 1;
-            if (count.value >= 100) {
-                emotionCount.value[
-                    currentQuestion.value
-                        ?.tag as keyof typeof emotionCount.value
-                ] += 1;
-                usePlaySound().result();
-                count.value = 0;
-                currentQuestion.value =
-                    allQuestions.value.find(
-                        (q) =>
-                            q.tag !== currentQuestion.value?.tag &&
-                            emotionCount.value[
-                                q.tag as keyof typeof emotionCount.value
-                            ] < 1
-                    ) || null;
-            }
-        }
-        if (currentQuestion.value === null && score.value !== maxScore) {
-            if (score.value === 0) {
-                scoreStore.setScore(100000);
-            }
-            setTimeout(() => {
-                window.location.href = "/result";
-            }, 10000);
-        }
-    });
+    window.addEventListener("emotionResult", handleEmotionResult);
 });
 
 onUnmounted(() => {
     window.removeEventListener("resize", updateVisibility);
+    window.removeEventListener("emotionResult", handleEmotionResult);
 });
 </script>
 

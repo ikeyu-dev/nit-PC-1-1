@@ -5,6 +5,9 @@ import { readFileSync } from "fs";
 export default defineNuxtConfig({
     compatibilityDate: "2025-05-15",
     devtools: { enabled: true },
+    experimental: {
+        appManifest: false,
+    },
     vite: {
         plugins: [tailwindcss()],
     },

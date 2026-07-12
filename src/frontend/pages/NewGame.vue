@@ -2,6 +2,10 @@
 import { useUserStore } from "~/composables/user";
 import { getCookie } from "~/composables/cookie";
 import type { User } from "~/types/user";
+import { apiHealthCheck } from "~/composables/apiHealthCheck";
+
+const nowDate = ref(new Date());
+
 definePageMeta({
     layout: false,
 });
@@ -9,6 +13,11 @@ definePageMeta({
 const userStore = useUserStore();
 
 onMounted(() => {
+    setInterval(() => {
+        apiHealthCheck();
+        nowDate.value = new Date();
+        console.log("backend-api: pass", nowDate.value.toLocaleString());
+    }, 1000);
     if (userStore.user?.nickname !== "" && userStore.user !== null) {
         window.location.href = "/";
     }
@@ -23,14 +32,16 @@ const defineNewUser = () => {
         nickname: newUserName,
         score: 0,
     } as User);
+    window.location.href = "/";
 };
 const defineNewGuest = () => {
     const userStore = useUserStore();
     const randomId = Math.random().toString(36).substring(2, 10);
     userStore.setUser({
-        nickname: `ゲスト-${randomId}`,
+        nickname: `ゲスト_UUID=${randomId}`,
         score: 0,
     } as User);
+    window.location.href = "/";
 };
 </script>
 
@@ -77,14 +88,14 @@ const defineNewGuest = () => {
                         </div>
                         <button
                             @click="defineNewUser()"
-                            type="submit"
+                            type="button"
                             class="btn btn-primary w-full"
                         >
                             スタート
                         </button>
                         <button
                             @click="defineNewGuest()"
-                            type="submit"
+                            type="button"
                             class="btn btn-link w-full"
                         >
                             ゲストとして開始

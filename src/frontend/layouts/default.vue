@@ -17,6 +17,7 @@ onMounted(() => {
     setInterval(() => {
         apiHealthCheck();
         nowDate.value = new Date();
+        console.log("backend-api: pass", nowDate.value.toLocaleString());
     }, 1000);
 });
 onUnmounted(() => {

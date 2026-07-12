@@ -27,10 +27,7 @@ async def get_all_question(db: Session = Depends(db.db_session)):
     try:
         all_questions = crud.get_all_question(db)
         if not all_questions:
-            return JSONResponse(
-                status_code=200,
-                content={"question": "not exist"},
-            )
+            return []
         return all_questions
 
     except Exception as e:
